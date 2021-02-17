@@ -6,12 +6,12 @@ env:
   APPLICATIONPATH: Application
   DOCKERFILEPATH: "Application/aspnet-core-dotnet-core"
   REGISTRYSKU: "Standard"
-  REGISTRYNAME: "marcusfelling${{ env.APPNAME }}acr"  
+  REGISTRYNAME: "marcusfellingacr"  
   LOCATION: West US
   SKU: B1 Basic
   RESOURCEGROUPNAME: ${{ env.APPNAME }}-dev-rg
   HOSTINGPLAN: ${{ env.APPNAME }}-service-plan
-  IMAGENAME: "${{ env.APPNAME }}d7dc"
+  IMAGENAME: ${{ env.APPNAME }}d7dc
 
 jobs:
   build:

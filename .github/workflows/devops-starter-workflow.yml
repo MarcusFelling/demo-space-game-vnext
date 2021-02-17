@@ -1,4 +1,5 @@
 name: Build and deploy Docker app to Azure
+on: [push]
 
 env:
   APPNAME: Demo-WebAppForContainers

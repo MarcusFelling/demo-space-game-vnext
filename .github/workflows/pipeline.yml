@@ -9,9 +9,9 @@ env:
   REGISTRYNAME: "marcusfellingacr"  
   LOCATION: West US
   SKU: B1 Basic
-  RESOURCEGROUPNAME: ${{ env.APPNAME }}-dev-rg
-  HOSTINGPLAN: ${{ env.APPNAME }}-service-plan
-  IMAGENAME: ${{ env.APPNAME }}d7dc
+  RESOURCEGROUPNAME: spacegame-dev-rg
+  HOSTINGPLAN: spacegame-service-plan
+  IMAGENAME: spacegamed7dc
 
 jobs:
   build:

@@ -1,8 +1,4 @@
 name: Build and deploy Docker app to Azure
-on:
-  push:
-    branches:
-      - master
 
 env:
   APPNAME: Demo-WebAppForContainers
@@ -70,7 +66,7 @@ jobs:
         docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
   deploy:
-    name: Deploy application to AKS
+    name: Deploy application Azure Web App for Containers
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -96,7 +92,7 @@ jobs:
            echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
            echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
 
-    - name: 'Deploy to Azure Web App for Container'
+    - name: 'Deploy to Azure Web App for Containers'
       uses: azure/webapps-deploy@v2
       with: 
         app-name: ${{ env.APPNAME }} 

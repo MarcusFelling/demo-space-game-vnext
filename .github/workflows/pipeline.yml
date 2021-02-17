@@ -6,7 +6,7 @@ env:
   APPLICATIONPATH: Application
   DOCKERFILEPATH: "Application/aspnet-core-dotnet-core"
   REGISTRYSKU: "Standard"
-  REGISTRYNAME: "marcusfellingacr"  
+  REGISTRYNAME: "marcusfellingspacegamevnextacr"  
   LOCATION: West US
   SKU: B1 Basic
   RESOURCEGROUPNAME: spacegamevnext-dev-rg 

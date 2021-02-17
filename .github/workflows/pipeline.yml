@@ -2,16 +2,16 @@ name: pipeline
 on: [push]
 
 env:
-  APPNAME: spacegame
+  APPNAME: spacegamevnext
   APPLICATIONPATH: Application
   DOCKERFILEPATH: "Application/aspnet-core-dotnet-core"
   REGISTRYSKU: "Standard"
   REGISTRYNAME: "marcusfellingacr"  
   LOCATION: West US
   SKU: B1 Basic
-  RESOURCEGROUPNAME: spacegame-dev-rg 
-  HOSTINGPLAN: spacegame-service-plan
-  IMAGENAME: spacegamed7dc
+  RESOURCEGROUPNAME: spacegamevnext-dev-rg 
+  HOSTINGPLAN: spacegamevnext-service-plan
+  IMAGENAME: spacegamevnext
 
 jobs:
   build:

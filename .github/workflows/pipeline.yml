@@ -15,7 +15,7 @@ env:
   IMAGENAME: spacegamevnext
 
 jobs:
-  buildApp:
+  build:
     name: Build and push application to ACR
     runs-on: ubuntu-latest
     steps:

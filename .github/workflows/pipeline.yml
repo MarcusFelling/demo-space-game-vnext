@@ -60,7 +60,7 @@ jobs:
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
         resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-        template: ./IaC/registry.json
+        template: ./${{ env.IACPATH }}/registry.json
         parameters: registryName="${{ env.REGISTRYNAME }}" registryLocation="${{ env.LOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
 
     - name: Fetch ACR credentials
@@ -96,12 +96,17 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - uses: actions/download-artifact@v2
+      with:
+        name: IaC
+        path: ${{ env.IACPATH }}
+
     - uses: azure/arm-deploy@v1
       id: deploy
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
         resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-        template: ./IaC/webapp.json
+        template: ./${{ env.IACPATH }}/webapp.json
         parameters: webAppName="${{ env.APPNAME }}" hostingPlanName="${{ env.HOSTINGPLAN }}" sku="${{ env.SKU }}" appInsightsLocation="${{ env.LOCATION }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registryLocation="${{ env.LOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
  
     - name: Get ACR credentials

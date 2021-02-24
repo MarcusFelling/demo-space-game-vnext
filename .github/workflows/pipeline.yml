@@ -4,6 +4,7 @@ on: [push]
 env:
   APPNAME: spacegamevnext
   APPLICATIONPATH: Application
+  IACPATH: IaC
   DOCKERFILEPATH: "Application/aspnet-core-dotnet-core"
   REGISTRYSKU: "Standard"
   REGISTRYNAME: "marcusfellingspacegamevnextacr"  
@@ -14,7 +15,7 @@ env:
   IMAGENAME: spacegamevnext
 
 jobs:
-  build:
+  buildApp:
     name: Build and push application to ACR
     runs-on: ubuntu-latest
     steps:
@@ -25,7 +26,7 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Build and Run unit tests 
+    - name: Build app and run unit tests 
       run: | 
             pushd ${{ env.APPLICATIONPATH }}
             dotnet restore
@@ -33,13 +34,33 @@ jobs:
             dotnet test aspnet-core-dotnet-core.UnitTests/aspnet-core-dotnet-core.UnitTests.csproj  --verbosity normal
             popd
 
+    # Generate ARM templates
+    - name: Bicep build
+      run: | 
+        # Fetch the latest Bicep CLI binary
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+        # Mark it as executable
+        chmod +x ./bicep
+        # Add bicep to your PATH (requires admin)
+        sudo mv ./bicep /usr/local/bin/bicep
+        # Run Bicep build
+        pushd ${{ env.IACPATH }}
+        bicep build registry.bicep
+        bicep build webapp.bicep
+
+    - name: Upload compiled arm templates 
+      uses: actions/upload-artifact@v2
+      with:
+        name: IaC
+        path: webapp.json 
+
     # Create Azure container registry
     - uses: azure/arm-deploy@v1
       id: createAcr
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
         resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-        template: ./ArmTemplates/containerRegistry-template.json
+        template: ./IaC/registry.json
         parameters: registryName="${{ env.REGISTRYNAME }}" registryLocation="${{ env.LOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
 
     - name: Fetch ACR credentials
@@ -61,7 +82,7 @@ jobs:
       run: |
         docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
         docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
-        docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+        docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}  
 
   deploy:
     name: Deploy application Azure Web App for Containers
@@ -80,7 +101,7 @@ jobs:
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
         resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-        template: ./ArmTemplates/container-webapp-template.json
+        template: ./IaC/webapp.json
         parameters: webAppName="${{ env.APPNAME }}" hostingPlanName="${{ env.HOSTINGPLAN }}" sku="${{ env.SKU }}" appInsightsLocation="${{ env.LOCATION }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registryLocation="${{ env.LOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
  
     - name: Get ACR credentials

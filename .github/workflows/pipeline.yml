@@ -52,7 +52,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: IaC
-        path: webapp.json 
+        path: ./${{ env.IACPATH }}/webapp.json 
 
     # Create Azure container registry
     - uses: azure/arm-deploy@v1

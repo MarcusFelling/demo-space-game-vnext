@@ -13,6 +13,9 @@ env:
   RESOURCEGROUPNAME: spacegamevnext-dev-rg 
   HOSTINGPLAN: spacegamevnext-service-plan
   IMAGENAME: spacegamevnext
+  SQLSERVERNAME: 'spacegamevnext-dev-sql'
+  STORAGEACCOUNTNAME: 'spacegamevnextdbstoragedev'
+  DBNAME: 'tailspindatabase'
 
 jobs:
   build:
@@ -46,13 +49,13 @@ jobs:
         # Run Bicep build
         pushd ${{ env.IACPATH }}
         bicep build registry.bicep
-        bicep build webapp.bicep
+        bicep build webapp-sql.bicep
 
     - name: Upload compiled arm templates 
       uses: actions/upload-artifact@v2
       with:
         name: IaC
-        path: ./${{ env.IACPATH }}/webapp.json 
+        path: ./${{ env.IACPATH }}/webapp-sql.json 
 
     # Create Azure container registry
     - uses: azure/arm-deploy@v1
@@ -106,8 +109,8 @@ jobs:
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
         resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-        template: ./${{ env.IACPATH }}/webapp.json
-        parameters: webAppName="${{ env.APPNAME }}" hostingPlanName="${{ env.HOSTINGPLAN }}" sku="${{ env.SKU }}" appInsightsLocation="${{ env.LOCATION }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registryLocation="${{ env.LOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
+        template: ./${{ env.IACPATH }}/webapp-sql.json
+        parameters: appServiceName="${{ env.APPNAME }}" servicePlanName="${{ env.HOSTINGPLAN }}" appSku="${{ env.SKU }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registrySku="${{ env.REGISTRYSKU }}" sqlServerName="${{ env.SQLSERVERNAME }}" storageAccountName="${{ env.STORAGEACCOUNTNAME }} "dbName="${{ env.DBNAME }} "dbUserName="${{ secret.DBUSERNAME }} "dbPassword="${{ secret.DBPASSWORD }}"
  
     - name: Get ACR credentials
       id: getACRCred

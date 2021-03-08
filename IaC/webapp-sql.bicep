@@ -6,7 +6,6 @@ param imageName string
 param registrySku string = 'Standard'
 param startupCommand string = ''
 param sqlServerName string
-param storageAccountName string
 param dbName string
 param dbUserName string
 param dbPassword string {
@@ -20,37 +19,6 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
     administratorLogin: dbUserName
     administratorLoginPassword: dbPassword
     version: '12.0'
-  }
-}
-
-resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-  name: storageAccountName
-  location: resourceGroup().location
-  sku: {
-    name: 'Standard_RAGRS'
-    tier: 'Standard'
-  }
-  kind: 'StorageV2'
-  properties: {
-    networkAcls: {
-      bypass: 'AzureServices'
-      defaultAction: 'Allow'
-    }
-    supportsHttpsTrafficOnly: true
-    encryption: {
-      services: {
-        file: {
-          keyType: 'Account'
-          enabled: true
-        }
-        blob: {
-          keyType: 'Account'
-          enabled: true
-        }
-      }
-      keySource: 'Microsoft.Storage'
-    }
-    accessTier: 'Hot'
   }
 }
 

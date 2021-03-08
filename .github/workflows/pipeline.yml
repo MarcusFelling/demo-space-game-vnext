@@ -14,7 +14,6 @@ env:
   HOSTINGPLAN: spacegamevnext-service-plan
   IMAGENAME: spacegamevnext
   SQLSERVERNAME: 'spacegamevnext-dev-sql'
-  STORAGEACCOUNTNAME: 'spacegamevnextdbstoragedev'
   DBNAME: 'tailspindatabase'
 
 jobs:
@@ -110,7 +109,7 @@ jobs:
         subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
         resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
         template: ./${{ env.IACPATH }}/webapp-sql.json
-        parameters: appServiceName="${{ env.APPNAME }}" servicePlanName="${{ env.HOSTINGPLAN }}" appSku="${{ env.SKU }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registrySku="${{ env.REGISTRYSKU }}" sqlServerName="${{ env.SQLSERVERNAME }}" storageAccountName="${{ env.STORAGEACCOUNTNAME }}" dbName="${{ env.DBNAME }}" dbUserName="${{ secrets.DBUSERNAME }}" dbPassword="${{ secrets.DBPASSWORD }}"
+        parameters: appServiceName="${{ env.APPNAME }}" servicePlanName="${{ env.HOSTINGPLAN }}" appSku="${{ env.SKU }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registrySku="${{ env.REGISTRYSKU }}" sqlServerName="${{ env.SQLSERVERNAME }}" dbName="${{ env.DBNAME }}" dbUserName="${{ secrets.DBUSERNAME }}" dbPassword="${{ secrets.DBPASSWORD }}"
  
     - name: Get ACR credentials
       id: getACRCred

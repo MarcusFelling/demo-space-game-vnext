@@ -34,7 +34,7 @@ module registry 'registry.bicep' = {
 }
 
 // Create sql
-module sql './sql.bicep' = {
+module sql 'sql.bicep' = {
   name: 'sql'
   scope: rg
   params:{
@@ -46,15 +46,14 @@ module sql './sql.bicep' = {
 }
 
 // Create web app 
-module webapp './webapp.bicep' = {
+module webapp 'webapp.bicep' = {
   name: 'webapp'
   scope: rg
   params:{
     servicePlanName: servicePlanName
     appServiceName: appServiceName
     appSku: appSku
-    registryName: registry.outputs.registryName // Use output from registry module
-    registryLoginServer: registry.outputs.registryLoginServer // Use output from registry module
+    registryName: registryName
     imageName: imageName
     sqlServer: sql.outputs.sqlServerFQDN // Use output from sql module to set connection string
     dbName: dbName // Used for connection string

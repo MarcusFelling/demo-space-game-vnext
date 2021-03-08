@@ -11,6 +11,3 @@ resource registry 'Microsoft.ContainerRegistry/registries@2017-10-01' = {
     adminUserEnabled: 'true'
   }
 }
-
-output registryName string = registry.name
-output registryLoginServer string = registry.properties.loginServer

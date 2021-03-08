@@ -4,7 +4,7 @@ param appServiceName string
 param appSku string = 'Standard'
 param startupCommand string = ''
 param registryName string
-param registryLoginServer string
+param registrySku string = 'Standard'
 param imageName string
 param sqlServer string
 param dbName string
@@ -13,6 +13,18 @@ param dbPassword string {
   secure: true
 }
 param devEnv string // Used in condition for deployment slots
+
+// Create registry where app image is stored
+resource registry 'Microsoft.ContainerRegistry/registries@2017-10-01' = {
+  name: registryName
+  location: resourceGroup().location  
+  sku: {
+    name: registrySku
+  }
+  properties: {
+    adminUserEnabled: 'true'
+  }
+}
 
 resource servicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   kind: 'linux'
@@ -36,7 +48,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
       appSettings: [
         {
           name: 'DOCKER_REGISTRY_SERVER_URL'          
-          value: registryLoginServer
+          value: registry.properties.loginServer
         }
         {
           name: 'DOCKER_REGISTRY_SERVER_USERNAME'
@@ -50,7 +62,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
       appCommandLine: startupCommand
       linuxFxVersion: 'DOCKER|${reference('Microsoft.ContainerRegistry/registries/${registryName}').loginServer}/${imageName}'
     }
-    serverFarmId: '${servicePlan.id}'
+    serverFarmId: '${servicePlan.id}'    
   }
 }
 

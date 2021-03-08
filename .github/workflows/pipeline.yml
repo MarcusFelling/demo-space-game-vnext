@@ -36,19 +36,12 @@ jobs:
             dotnet test aspnet-core-dotnet-core.UnitTests/aspnet-core-dotnet-core.UnitTests.csproj  --verbosity normal
             popd
 
-    # Generate ARM templates
+    # Ensure Bicep transpiles successfully
     - name: Bicep build
       run: | 
-        # Fetch the latest Bicep CLI binary
-        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-        # Mark it as executable
-        chmod +x ./bicep
-        # Add bicep to your PATH (requires admin)
-        sudo mv ./bicep /usr/local/bin/bicep
         # Run Bicep build
         pushd ${{ env.IACPATH }}
-        bicep build registry.bicep
-        bicep build webapp-sql.bicep
+        az bicep build -f registry.bicep webapp-sql.bicep
 
     - name: Upload compiled arm templates 
       uses: actions/upload-artifact@v2

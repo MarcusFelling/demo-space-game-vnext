@@ -8,13 +8,14 @@ env:
   DOCKERFILEPATH: "Application/aspnet-core-dotnet-core"
   REGISTRYSKU: "Standard"
   REGISTRYNAME: "marcusfellingspacegamevnextacr"  
-  LOCATION: West US
-  SKU: B1 Basic
+  LOCATION: 'West US'
+  SKU: 'B1 Basic'
   RESOURCEGROUPNAME: spacegamevnext-dev-rg 
-  HOSTINGPLAN: spacegamevnext-service-plan
+  SERVICEPLANNAME: spacegamevnext-service-plan
   IMAGENAME: spacegamevnext
   SQLSERVERNAME: 'spacegamevnext-dev-sql'
-  DBNAME: 'tailspindatabase'
+  DBNAME: 'spacegamedatabase'
+  DEVENV: 'true'
 
 jobs:
   build:
@@ -42,7 +43,7 @@ jobs:
         # Run Bicep build
         pushd ${{ env.IACPATH }}
         az bicep build --files registry.bicep
-        az bicep build --files webapp-sql.bicep
+        az bicep build --files main.bicep
 
     - name: Upload compiled arm templates 
       uses: actions/upload-artifact@v2
@@ -81,7 +82,7 @@ jobs:
         docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}  
 
   deploy:
-    name: Deploy application Azure Web App for Containers
+    name: Deploy infrastructure and application
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -97,14 +98,12 @@ jobs:
         name: IaC
         path: ${{ env.IACPATH }}
 
-    - uses: azure/arm-deploy@v1
-      id: deploy
+    - name: Deploy infrastructure with Bicep
+      uses: azure/CLI@v1
       with:
-        subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
-        resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-        template: ./${{ env.IACPATH }}/webapp-sql.json
-        parameters: appServiceName="${{ env.APPNAME }}" servicePlanName="${{ env.HOSTINGPLAN }}" appSku="${{ env.SKU }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registrySku="${{ env.REGISTRYSKU }}" sqlServerName="${{ env.SQLSERVERNAME }}" dbName="${{ env.DBNAME }}" dbUserName="${{ secrets.DBUSERNAME }}" dbPassword="${{ secrets.DBPASSWORD }}"
- 
+        inlineScript: |
+          aaz deployment sub create --location "${{ env.LOCATION }}" --template-file ./${{ env.IACPATH }}/main.bicep --parameters resourceGroupName="${{ env.RESOURCEGROUPNAME }}" appServiceName="${{ env.APPNAME }}" servicePlanName="${{ env.SERVICEPLANNAME }}" appSku="${{ env.SKU }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registrySku="${{ env.REGISTRYSKU }}" sqlServerName="${{ env.SQLSERVERNAME }}" dbName="${{ env.DBNAME }}" dbUserName="${{ secrets.DBUSERNAME }}" dbPassword="${{ secrets.DBPASSWORD }}" devEnv="${{ env.DEVENV }}"
+
     - name: Get ACR credentials
       id: getACRCred
       run: |

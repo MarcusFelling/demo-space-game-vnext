@@ -1,14 +1,16 @@
 param registryName string
-param registryLocation string
 param registrySku string = 'Standard'
 
-resource registryName_resource 'Microsoft.ContainerRegistry/registries@2017-10-01' = {
+resource registry 'Microsoft.ContainerRegistry/registries@2017-10-01' = {
+  name: registryName
+  location: resourceGroup().location  
   sku: {
     name: registrySku
   }
-  name: registryName
-  location: registryLocation
   properties: {
     adminUserEnabled: 'true'
   }
 }
+
+output registryName string = registry.name
+output registryLoginServer string = registry.properties.loginServer

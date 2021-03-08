@@ -91,8 +91,16 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
+          # Fetch the latest Bicep CLI binary
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+          # Mark it as executable
+          chmod +x ./bicep
+          # Add bicep to your PATH (requires admin)
+          sudo mv ./bicep /usr/local/bin/bicep
+          # Run Bicep build
           pushd ${{ env.IACPATH }}
-          az deployment sub create --location ${{ env.LOCATION }} --template-file main.bicep --parameters resourceGroupName="${{ env.RESOURCEGROUPNAME }}" appServiceName="${{ env.APPNAME }}" servicePlanName="${{ env.SERVICEPLANNAME }}" appSku="${{ env.SKU }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registrySku="${{ env.REGISTRYSKU }}" sqlServerName="${{ env.SQLSERVERNAME }}" dbName="${{ env.DBNAME }}" dbUserName="${{ secrets.DBUSERNAME }}" dbPassword="${{ secrets.DBPASSWORD }}" devEnv="${{ env.DEVENV }}"
+          az bicep build --files main.bicep
+          az deployment sub create --location ${{ env.LOCATION }} --template-file main.json --parameters resourceGroupName="${{ env.RESOURCEGROUPNAME }}" appServiceName="${{ env.APPNAME }}" servicePlanName="${{ env.SERVICEPLANNAME }}" appSku="${{ env.SKU }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registrySku="${{ env.REGISTRYSKU }}" sqlServerName="${{ env.SQLSERVERNAME }}" dbName="${{ env.DBNAME }}" dbUserName="${{ secrets.DBUSERNAME }}" dbPassword="${{ secrets.DBPASSWORD }}" devEnv="${{ env.DEVENV }}"
 
     - name: Get ACR credentials
       id: getACRCred

@@ -41,7 +41,8 @@ jobs:
       run: | 
         # Run Bicep build
         pushd ${{ env.IACPATH }}
-        az bicep build -f registry.bicep webapp-sql.bicep
+        az bicep build --files registry.bicep
+        az bicep build --files webapp-sql.bicep
 
     - name: Upload compiled arm templates 
       uses: actions/upload-artifact@v2

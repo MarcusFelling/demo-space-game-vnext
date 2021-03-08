@@ -91,7 +91,7 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
-          aaz deployment sub create --location "${{ env.LOCATION }}" --template-file ./${{ env.IACPATH }}/main.bicep --parameters resourceGroupName="${{ env.RESOURCEGROUPNAME }}" appServiceName="${{ env.APPNAME }}" servicePlanName="${{ env.SERVICEPLANNAME }}" appSku="${{ env.SKU }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registrySku="${{ env.REGISTRYSKU }}" sqlServerName="${{ env.SQLSERVERNAME }}" dbName="${{ env.DBNAME }}" dbUserName="${{ secrets.DBUSERNAME }}" dbPassword="${{ secrets.DBPASSWORD }}" devEnv="${{ env.DEVENV }}"
+          az deployment sub create --location "${{ env.LOCATION }}" --template-file ./${{ env.IACPATH }}/main.bicep --parameters resourceGroupName="${{ env.RESOURCEGROUPNAME }}" appServiceName="${{ env.APPNAME }}" servicePlanName="${{ env.SERVICEPLANNAME }}" appSku="${{ env.SKU }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registrySku="${{ env.REGISTRYSKU }}" sqlServerName="${{ env.SQLSERVERNAME }}" dbName="${{ env.DBNAME }}" dbUserName="${{ secrets.DBUSERNAME }}" dbPassword="${{ secrets.DBPASSWORD }}" devEnv="${{ env.DEVENV }}"
 
     - name: Get ACR credentials
       id: getACRCred

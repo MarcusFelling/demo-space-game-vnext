@@ -58,7 +58,10 @@ resource servicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   sku: {
     tier: first(skip(split(appSku, ' '), 1))
     name: first(split(appSku, ' '))
-  }  
+  }
+  properties: {
+    reserved:true
+  }
 }
 
 resource appService 'Microsoft.Web/sites@2020-06-01' = {

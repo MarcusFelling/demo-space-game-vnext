@@ -58,7 +58,7 @@ jobs:
         subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
         resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
         template: ./${{ env.IACPATH }}/registry.json
-        parameters: registryName="${{ env.REGISTRYNAME }}" registryLocation="${{ env.LOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
+        parameters: registryName="${{ env.REGISTRYNAME }}" registrySku="${{ env.REGISTRYSKU }}"
 
     - name: Fetch ACR credentials
       id: acrCredentials

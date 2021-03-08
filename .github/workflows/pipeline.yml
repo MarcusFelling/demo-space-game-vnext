@@ -37,19 +37,13 @@ jobs:
             dotnet test aspnet-core-dotnet-core.UnitTests/aspnet-core-dotnet-core.UnitTests.csproj  --verbosity normal
             popd
 
-    # Ensure Bicep transpiles successfully
+    # Ensure Bicep transpile successfully
     - name: Bicep build
       run: | 
         # Run Bicep build
         pushd ${{ env.IACPATH }}
         az bicep build --files registry.bicep
         az bicep build --files main.bicep
-
-    - name: Upload compiled arm templates 
-      uses: actions/upload-artifact@v2
-      with:
-        name: IaC
-        path: ./${{ env.IACPATH }}/webapp-sql.json 
 
     # Create Azure container registry
     - uses: azure/arm-deploy@v1
@@ -92,11 +86,6 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - uses: actions/download-artifact@v2
-      with:
-        name: IaC
-        path: ${{ env.IACPATH }}
 
     - name: Deploy infrastructure with Bicep
       uses: azure/CLI@v1

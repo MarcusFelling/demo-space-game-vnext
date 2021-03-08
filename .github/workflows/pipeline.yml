@@ -88,7 +88,7 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Deploy infrastructure with Bicep
-      uses: azure/CLI@v1
+      uses: Azure/cli@1.0.4
       with:
         inlineScript: |
           az deployment sub create --location '${{ env.LOCATION }}'' --template-file ${{ env.IACPATH }}/main.bicep --parameters resourceGroupName='${{ env.RESOURCEGROUPNAME }}' appServiceName='${{ env.APPNAME }}' servicePlanName='${{ env.SERVICEPLANNAME }}' appSku='${{ env.SKU }}' registryName='${{ env.REGISTRYNAME }}' imageName='${{ env.IMAGENAME }}' registrySku='${{ env.REGISTRYSKU }}' sqlServerName='${{ env.SQLSERVERNAME }}' dbName='${{ env.DBNAME }}' dbUserName='${{ secrets.DBUSERNAME }}' dbPassword='${{ secrets.DBPASSWORD }}' devEnv='${{ env.DEVENV }}'

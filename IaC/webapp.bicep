@@ -1,7 +1,7 @@
 // Web App
 param servicePlanName string
 param appServiceName string
-param appSku string = 'Standard'
+param appSku string = 'S1'
 param startupCommand string = ''
 param registryName string
 param registrySku string = 'Standard'
@@ -31,8 +31,7 @@ resource servicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: servicePlanName
   location: resourceGroup().location
   sku: {
-    tier: first(skip(split(appSku, ' '), 1))
-    name: first(split(appSku, ' '))
+    name: appSku
   }
   properties: {
     reserved:true

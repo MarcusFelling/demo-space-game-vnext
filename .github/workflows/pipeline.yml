@@ -5,14 +5,14 @@ env:
   APPNAME: spacegamevnext
   APPLICATIONPATH: Application
   IACPATH: IaC
-  DOCKERFILEPATH: "Application/aspnet-core-dotnet-core"
-  REGISTRYSKU: "Standard"
-  REGISTRYNAME: "marcusfellingspacegamevnextacr"  
+  DOCKERFILEPATH: 'Application/aspnet-core-dotnet-core'
+  REGISTRYSKU: 'Standard'
+  REGISTRYNAME: 'marcusfellingspacegamevnextacr'
   LOCATION: 'WestUS'
-  SKU: 'Standard'
-  RESOURCEGROUPNAME: spacegamevnext-dev-rg 
-  SERVICEPLANNAME: spacegamevnext-service-plan
-  IMAGENAME: spacegamevnext
+  SKU: 'S1'
+  RESOURCEGROUPNAME: 'spacegamevnext-dev-rg'
+  SERVICEPLANNAME: 'spacegamevnext-service-plan'
+  IMAGENAME: 'spacegamevnext'
   SQLSERVERNAME: 'spacegamevnext-dev-sql'
   DBNAME: 'spacegamedatabase'
   DEVENV: 'true'

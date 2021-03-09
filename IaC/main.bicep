@@ -4,10 +4,10 @@ targetScope = 'subscription' // switch to sub scope to create resource group
 param resourceGroupName string
 param appServiceName string
 param servicePlanName string
-param appSku string = 'Standard'
+param appSku string
 param registryName string
 param imageName string
-param registrySku string = 'Standard'
+param registrySku string
 param startupCommand string = ''
 param sqlServerName string
 param dbName string

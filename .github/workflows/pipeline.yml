@@ -9,25 +9,26 @@ env:
   DOCKERFILEPATH: 'Application/aspnet-core-dotnet-core'
   REGISTRYSKU: 'Standard'
   REGISTRYNAME: 'marcusfellingspacegamevnextacr'
+  IMAGENAME: 'spacegamevnext'
   LOCATION: 'WestUS'
   SKU: 'S1'
-  RESOURCEGROUPNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-rg' # Each environment has it's own resource group
-  ACRRESOURCEGROUP: '${{ env.APPNAME }}-ACR-rg' # ACR is shared between environments
-  SERVICEPLANNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-plan'
-  IMAGENAME: 'spacegamevnext'
-  SQLSERVERNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-sql'
-  DBNAME: '${{ env.APPNAME }}database'
   DEVENV: 'true'
   BUILDCONFIGURATION: Release
   DOTNETSDKVERSION: 5.0.103
-  WWROOTDIR: '${{ env.APPLICATIONPATH }}/wwwroot'
-  APPID: ${{ env.GITHUB_RUN_ID }}
-  SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-${{ env.APPID }}.azurewebsites.net'
 
 jobs:
   build:
     name: Build and push application to ACR
     runs-on: ubuntu-latest
+    env:
+      RESOURCEGROUPNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-rg' # Each environment has it's own resource group
+      ACRRESOURCEGROUP: '${{ env.APPNAME }}-ACR-rg' # ACR is shared between environments
+      SERVICEPLANNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-plan'
+      SQLSERVERNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-sql'
+      DBNAME: '${{ env.APPNAME }}database'
+      WWROOTDIR: '${{ env.APPLICATIONPATH }}/wwwroot'
+      SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-${{ env.APPID }}.azurewebsites.net'
+      APPID: ${{ env.GITHUB_RUN_ID }}    
     steps:
     - uses: actions/checkout@master
 
@@ -82,6 +83,14 @@ jobs:
     name: Deploy infrastructure and application
     env: 
       ENVIRONMENT: dev
+      RESOURCEGROUPNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-rg' # Each environment has it's own resource group
+      ACRRESOURCEGROUP: '${{ env.APPNAME }}-ACR-rg' # ACR is shared between environments
+      SERVICEPLANNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-plan'
+      SQLSERVERNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-sql'
+      DBNAME: '${{ env.APPNAME }}database'
+      WWROOTDIR: '${{ env.APPLICATIONPATH }}/wwwroot'
+      SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-${{ env.APPID }}.azurewebsites.net'
+      APPID: ${{ env.GITHUB_RUN_ID }}      
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -128,6 +137,14 @@ jobs:
     name: Functional tests
     env: 
       ENVIRONMENT: dev
+      RESOURCEGROUPNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-rg' # Each environment has it's own resource group
+      ACRRESOURCEGROUP: '${{ env.APPNAME }}-ACR-rg' # ACR is shared between environments
+      SERVICEPLANNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-plan'
+      SQLSERVERNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-sql'
+      DBNAME: '${{ env.APPNAME }}database'
+      WWROOTDIR: '${{ env.APPLICATIONPATH }}/wwwroot'
+      SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-${{ env.APPID }}.azurewebsites.net'
+      APPID: ${{ env.GITHUB_RUN_ID }}      
     runs-on: windows-latest
     needs: deploy
     steps:

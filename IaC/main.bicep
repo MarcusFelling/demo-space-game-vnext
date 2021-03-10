@@ -1,6 +1,5 @@
 // Creates all infrastructure for Space Game
 targetScope = 'subscription' // switch to sub scope to create resource group
-
 param resourceGroupName string
 param acrResourceGroupName string
 param appServiceName string
@@ -60,7 +59,7 @@ module webapp 'webapp.bicep' = {
     servicePlanName: servicePlanName
     appServiceName: appServiceName
     appSku: appSku
-    registryName: registry.name
+    registryName: registry.outputs.registryName
     registryLoginServer: registry.outputs.registryLoginServer
     imageName: imageName
     sqlServer: db.outputs.sqlServerFQDN // Use output from db module to set connection string

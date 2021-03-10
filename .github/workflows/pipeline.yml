@@ -11,11 +11,11 @@ env:
   REGISTRYNAME: 'marcusfellingspacegamevnextacr'
   LOCATION: 'WestUS'
   SKU: 'S1'
-  RESOURCEGROUPNAME: ${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-rg # Each environment has it's own resource group
-  ACRRESOURCEGROUP: ${{ env.APPNAME }}-ACR-rg # ACR is shared between environments
-  SERVICEPLANNAME: ${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-plan
+  RESOURCEGROUPNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-rg' # Each environment has it's own resource group
+  ACRRESOURCEGROUP: '${{ env.APPNAME }}-ACR-rg' # ACR is shared between environments
+  SERVICEPLANNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-plan'
   IMAGENAME: 'spacegamevnext'
-  SQLSERVERNAME: ${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-sql
+  SQLSERVERNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-sql'
   DBNAME: '${{ env.APPNAME }}database'
   DEVENV: 'true'
   BUILDCONFIGURATION: Release

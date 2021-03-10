@@ -5,17 +5,24 @@ env:
   APPNAME: spacegamevnext
   APPLICATIONPATH: Application
   IACPATH: IaC
+  DBPATH: Database
   DOCKERFILEPATH: 'Application/aspnet-core-dotnet-core'
   REGISTRYSKU: 'Standard'
   REGISTRYNAME: 'marcusfellingspacegamevnextacr'
   LOCATION: 'WestUS'
   SKU: 'S1'
-  RESOURCEGROUPNAME: 'spacegamevnext-dev-rg'
-  SERVICEPLANNAME: 'spacegamevnext-service-plan'
+  RESOURCEGROUPNAME: ${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-rg # Each environment has it's own resource group
+  ACRRESOURCEGROUP: ${{ env.APPNAME }}-ACR-rg # ACR is shared between environments
+  SERVICEPLANNAME: ${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-plan
   IMAGENAME: 'spacegamevnext'
-  SQLSERVERNAME: 'spacegamevnext-dev-sql'
-  DBNAME: 'spacegamedatabase'
+  SQLSERVERNAME: ${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-sql
+  DBNAME: '${{ env.APPNAME }}database'
   DEVENV: 'true'
+  BUILDCONFIGURATION: Release
+  DOTNETSDKVERSION: 5.0.103
+  WWROOTDIR: '${{ env.APPLICATIONPATH }}/wwwroot'
+  APPID: ${{ env.GITHUB_RUN_ID }}
+  SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-${{ env.APPID }}.azurewebsites.net'
 
 jobs:
   build:
@@ -37,22 +44,18 @@ jobs:
             dotnet test aspnet-core-dotnet-core.UnitTests/aspnet-core-dotnet-core.UnitTests.csproj  --verbosity normal
             popd
 
-    # Ensure Bicep transpile successfully
+    # Ensure Bicep template transpile successfully
     - name: Bicep build
       run: | 
-        # Run Bicep build
-        pushd ${{ env.IACPATH }}
-        az bicep build --files registry.bicep
-        az bicep build --files main.bicep
+        az bicep build --files ${{ env.IACPATH }}/main.bicep
 
-    # Create Azure container registry
-    - uses: azure/arm-deploy@v1
-      id: createAcr
-      with:
-        subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
-        resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-        template: ./${{ env.IACPATH }}/registry.json
-        parameters: registryName="${{ env.REGISTRYNAME }}" registrySku="${{ env.REGISTRYSKU }}"
+    - name: Create Azure container registry with Bicep
+      run: >
+        az deployment group create \
+          --resource-group '${{ env.ACRRESOURCEGROUP }}' \
+          --template-file ${{ env.IACPATH }}/registry.bicep \
+          --parameters registryName='${{ env.REGISTRYNAME }}' \
+                       registrySku='${{ env. REGISTRYSKU }}'        
 
     - name: Fetch ACR credentials
       id: acrCredentials
@@ -77,8 +80,10 @@ jobs:
 
   deploy:
     name: Deploy infrastructure and application
+    env: 
+      ENVIRONMENT: dev
     needs: build
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
 
@@ -93,6 +98,7 @@ jobs:
           --location '${{ env.LOCATION }}' \
           --template-file ${{ env.IACPATH }}/main.bicep \
           --parameters resourceGroupName='${{ env.RESOURCEGROUPNAME }}' \
+                       acrResourceGroup='${{ env. ACRRESOURCEGROUP }}' \
                        appServiceName='${{ env.APPNAME }}' \
                        servicePlanName='${{ env.SERVICEPLANNAME }}' \
                        appSku='${{ env.SKU }}' \
@@ -120,6 +126,8 @@ jobs:
 
   FunctionalTests:
     name: Functional tests
+    env: 
+      ENVIRONMENT: dev
     runs-on: windows-latest
     needs: deploy
     steps:

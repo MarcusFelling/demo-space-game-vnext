@@ -2,6 +2,7 @@
 targetScope = 'subscription' // switch to sub scope to create resource group
 
 param resourceGroupName string
+param acrResourceGroupName string
 param appServiceName string
 param servicePlanName string
 param appSku string
@@ -17,25 +18,31 @@ param dbPassword string {
 }
 param devEnv string // Used for conditionals on features like deployment slots
 
-// Create resource group
+// Create resource group for webapp and db
 resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   name: resourceGroupName
+  location: deployment().location
+}
+
+// Create resource group for ACR
+resource acrrg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+  name: acrResourceGroupName
   location: deployment().location
 }
 
 // Create registry
 module registry 'registry.bicep' = {
   name: 'registry'
-  scope: rg
+  scope: acrrg
   params:{
     registryName: registryName
     registrySku: registrySku
   }
 }
 
-// Create sql
-module sql 'sql.bicep' = {
-  name: 'sql'
+// Create database infrastructure
+module db 'db.bicep' = {
+  name: 'db'
   scope: rg
   params:{
     sqlServerName: sqlServerName
@@ -45,7 +52,7 @@ module sql 'sql.bicep' = {
   }
 }
 
-// Create web app 
+// Create web app infrastructure
 module webapp 'webapp.bicep' = {
   name: 'webapp'
   scope: rg
@@ -53,9 +60,10 @@ module webapp 'webapp.bicep' = {
     servicePlanName: servicePlanName
     appServiceName: appServiceName
     appSku: appSku
-    registryName: registryName
+    registryName: registry.name
+    registryLoginServer: registry.outputs.registryLoginServer
     imageName: imageName
-    sqlServer: sql.outputs.sqlServerFQDN // Use output from sql module to set connection string
+    sqlServer: db.outputs.sqlServerFQDN // Use output from db module to set connection string
     dbName: dbName // Used for connection string
     dbUserName: dbUserName // Used for connection string
     dbPassword: dbPassword // Used for connection string

@@ -8,6 +8,8 @@ resource registry 'Microsoft.ContainerRegistry/registries@2017-10-01' = {
     name: registrySku
   }
   properties: {
-    adminUserEnabled: 'true'
+    adminUserEnabled: true
   }
 }
+
+output registryLoginServer string = registry.properties.loginServer

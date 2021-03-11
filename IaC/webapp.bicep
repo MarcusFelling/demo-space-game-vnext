@@ -3,9 +3,8 @@ param servicePlanName string
 param appServiceName string
 param appSku string = 'S1'
 param startupCommand string = ''
-param registryName string
-param registryLoginServer string
-param registrySku string = 'Standard'
+param acrResourceGroupName string
+param registry string
 param imageName string
 param sqlServer string
 param dbName string
@@ -27,6 +26,13 @@ resource servicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   }
 }
 
+// Reference existing ACR for docker app settings.
+// This resource will not be deployed by this file, but the declaration provides access to properties on the existing resource.
+resource acr 'Microsoft.ContainerRegistry/registries@2020-11-01-preview' existing = {
+  name: registry
+  scope: resourceGroup(acrResourceGroupName)
+}
+
 resource appService 'Microsoft.Web/sites@2020-06-01' = {
   name: appServiceName
   location: resourceGroup().location
@@ -36,19 +42,23 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
       appSettings: [
         {
           name: 'DOCKER_REGISTRY_SERVER_URL'          
-          value: registryLoginServer
+          value: acr.properties.loginServer
         }
         {
           name: 'DOCKER_REGISTRY_SERVER_USERNAME'
-          value: listCredentials('Microsoft.ContainerRegistry/registries/${registryName}', '2017-10-01').username
+          value: listCredentials(acr.id, acr.apiVersion).username
         }
         {
           name: 'DOCKER_REGISTRY_SERVER_PASSWORD'
-          value: listCredentials('Microsoft.ContainerRegistry/registries/${registryName}', '2017-10-01').passwords[0].value
+          value: listCredentials(acr.id, acr.apiVersion).passwords[0].value
+        }
+        {
+          name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
+          value: 'false'
         }
       ]
       appCommandLine: startupCommand
-      linuxFxVersion: 'DOCKER|${reference('Microsoft.ContainerRegistry/registries/${registryName}').loginServer}/${imageName}'
+      linuxFxVersion: 'DOCKER|${acr.properties.loginServer}/${imageName}'
     }
     serverFarmId: '${servicePlan.id}'    
   }
@@ -65,7 +75,7 @@ resource connectionString 'Microsoft.Web/sites/config@2020-06-01' = {
 }
 
 // Create deployment slot if it's not a dev environment
-resource deploySlot 'Microsoft.Web/sites/slots@2018-11-01' = if(devEnv == 'false') {
+resource deploySlot 'Microsoft.Web/sites/slots@2020-06-01' = if(devEnv == 'false') {
   name: '${appService.name}/swap'
   location: resourceGroup().location
   kind: 'linux'

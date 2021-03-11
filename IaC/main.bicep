@@ -34,7 +34,7 @@ module registry 'registry.bicep' = {
   name: 'registry'
   scope: acrrg
   params:{
-    registryName: registryName
+    registry: registryName
     registrySku: registrySku
   }
 }
@@ -59,8 +59,8 @@ module webapp 'webapp.bicep' = {
     servicePlanName: servicePlanName
     appServiceName: appServiceName
     appSku: appSku
-    registryName: registry.outputs.registryName
-    registryLoginServer: registry.outputs.registryLoginServer
+    acrResourceGroupName: acrrg.name
+    registry: registry.outputs.acrName
     imageName: imageName
     sqlServer: db.outputs.sqlServerFQDN // Use output from db module to set connection string
     dbName: dbName // Used for connection string

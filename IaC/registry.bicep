@@ -1,8 +1,8 @@
-param registryName string
+param registry string
 param registrySku string = 'Standard'
 
-resource registry 'Microsoft.ContainerRegistry/registries@2017-10-01' = {
-  name: registryName
+resource acr 'Microsoft.ContainerRegistry/registries@2020-11-01-preview' = {
+  name: registry
   location: resourceGroup().location  
   sku: {
     name: registrySku
@@ -12,5 +12,4 @@ resource registry 'Microsoft.ContainerRegistry/registries@2017-10-01' = {
   }
 }
 
-output registryName string = registry.name
-output registryLoginServer string = registry.properties.loginServer
+output acrName string = acr.name

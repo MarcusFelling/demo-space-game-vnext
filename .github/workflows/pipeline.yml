@@ -1,6 +1,6 @@
 name: pipeline
 on: [push]
-
+ # environments: https://github.com/mickeygousset/youtube-demos/blob/main/.github/workflows/simple-manual-workflow-three-env.yml
 env:
   APPNAME: spacegamevnext
   APPLICATIONPATH: Application

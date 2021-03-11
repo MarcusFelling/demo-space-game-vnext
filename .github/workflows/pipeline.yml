@@ -16,19 +16,13 @@ env:
   BUILDCONFIGURATION: Release
   DOTNETSDKVERSION: 5.0.103
 
+  # WWROOTDIR: '${{ env.APPLICATIONPATH }}/wwwroot'
+  # SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.APPID }}.azurewebsites.net'
+
 jobs:
   build:
     name: Build and push application to ACR
-    runs-on: ubuntu-latest
-    env:
-      RESOURCEGROUPNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-rg' # Each environment has it's own resource group
-      ACRRESOURCEGROUP: '${{ env.APPNAME }}-ACR-rg' # ACR is shared between environments
-      SERVICEPLANNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-plan'
-      SQLSERVERNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-sql'
-      DBNAME: '${{ env.APPNAME }}database'
-      WWROOTDIR: '${{ env.APPLICATIONPATH }}/wwwroot'
-      SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-${{ env.APPID }}.azurewebsites.net'
-      APPID: ${{ env.GITHUB_RUN_ID }}    
+    runs-on: ubuntu-latest  
     steps:
     - uses: actions/checkout@master
 
@@ -53,7 +47,7 @@ jobs:
     - name: Create Azure container registry with Bicep
       run: >
         az deployment group create \
-          --resource-group '${{ env.ACRRESOURCEGROUP }}' \
+          --resource-group '${{ env.APPNAME }}-ACR-rg' \
           --template-file ${{ env.IACPATH }}/registry.bicep \
           --parameters registryName='${{ env.REGISTRYNAME }}' \
                        registrySku='${{ env. REGISTRYSKU }}'        
@@ -82,15 +76,7 @@ jobs:
   deploy:
     name: Deploy infrastructure and application
     env: 
-      ENVIRONMENT: dev
-      RESOURCEGROUPNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-rg' # Each environment has it's own resource group
-      ACRRESOURCEGROUP: '${{ env.APPNAME }}-ACR-rg' # ACR is shared between environments
-      SERVICEPLANNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-plan'
-      SQLSERVERNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-sql'
-      DBNAME: '${{ env.APPNAME }}database'
-      WWROOTDIR: '${{ env.APPLICATIONPATH }}/wwwroot'
-      SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-${{ env.APPID }}.azurewebsites.net'
-      APPID: ${{ env.GITHUB_RUN_ID }}      
+      ENVIRONMENTNAME: dev
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -106,16 +92,16 @@ jobs:
         az deployment sub create \
           --location '${{ env.LOCATION }}' \
           --template-file ${{ env.IACPATH }}/main.bicep \
-          --parameters resourceGroupName='${{ env.RESOURCEGROUPNAME }}' \
-                       acrResourceGroup='${{ env. ACRRESOURCEGROUP }}' \
-                       appServiceName='${{ env.APPNAME }}' \
-                       servicePlanName='${{ env.SERVICEPLANNAME }}' \
+          --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
+                       acrResourceGroup='${{ env.APPNAME }}-ACR-rg' \
+                       appServiceName='${{ env.APPNAME }}-${{ github.run_id }}' \
+                       servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.IMAGENAME }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
-                       sqlServerName='${{ env.SQLSERVERNAME }}' \
-                       dbName='${{ env.DBNAME }}' \
+                       sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
+                       dbName='${{ env.APPNAME }}database' \
                        dbUserName='${{ secrets.DBUSERNAME }}' \
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'
@@ -136,15 +122,7 @@ jobs:
   FunctionalTests:
     name: Functional tests
     env: 
-      ENVIRONMENT: dev
-      RESOURCEGROUPNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-rg' # Each environment has it's own resource group
-      ACRRESOURCEGROUP: '${{ env.APPNAME }}-ACR-rg' # ACR is shared between environments
-      SERVICEPLANNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-plan'
-      SQLSERVERNAME: '${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-sql'
-      DBNAME: '${{ env.APPNAME }}database'
-      WWROOTDIR: '${{ env.APPLICATIONPATH }}/wwwroot'
-      SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENT }}-${{ env.APPID }}.azurewebsites.net'
-      APPID: ${{ env.GITHUB_RUN_ID }}      
+      ENVIRONMENTNAME: dev     
     runs-on: windows-latest
     needs: deploy
     steps:

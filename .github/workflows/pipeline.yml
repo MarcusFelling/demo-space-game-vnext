@@ -93,7 +93,7 @@ jobs:
           --location '${{ env.LOCATION }}' \
           --template-file ${{ env.IACPATH }}/main.bicep \
           --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
-                       acrResourceGroup='${{ env.APPNAME }}-ACR-rg' \
+                       acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
                        appServiceName='${{ env.APPNAME }}-${{ github.run_id }}' \
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \

@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster AS build-env
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS build-env
 WORKDIR /app
 
 # Copy the published web app

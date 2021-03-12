@@ -3,10 +3,7 @@ on: [push]
  # environments: https://github.com/mickeygousset/youtube-demos/blob/main/.github/workflows/simple-manual-workflow-three-env.yml
 env:
   APPNAME: spacegamevnext
-  APPLICATIONPATH: Application
-  IACPATH: IaC
-  DBPATH: Database
-  DOCKERFILEPATH: 'Application/aspnet-core-dotnet-core'
+  DOCKERFILEPATH: 'WebApp'
   REGISTRYSKU: 'Standard'
   REGISTRYNAME: 'marcusfellingspacegamevnextacr'
   IMAGENAME: 'spacegamevnext'
@@ -33,22 +30,21 @@ jobs:
 
     - name: Build app and run unit tests 
       run: | 
-            pushd ${{ env.APPLICATIONPATH }}
             dotnet restore
             dotnet build --configuration Release
-            dotnet test aspnet-core-dotnet-core.UnitTests/aspnet-core-dotnet-core.UnitTests.csproj  --verbosity normal
+            dotnet test UnitTests/aspnet-core-dotnet-core.UnitTests.csproj  --verbosity normal
             popd
 
     # Ensure Bicep template transpile successfully
     - name: Bicep build
       run: | 
-        az bicep build --files ${{ env.IACPATH }}/main.bicep
+        az bicep build --files IaC/main.bicep
 
     - name: Create Azure container registry using Bicep
       run: >
         az deployment group create \
           --resource-group '${{ env.APPNAME }}-ACR-rg' \
-          --template-file ${{ env.IACPATH }}/registry.bicep \
+          --template-file IaC/registry.bicep \
           --parameters registry='${{ env.REGISTRYNAME }}' \
                        registrySku='${{ env. REGISTRYSKU }}'        
 
@@ -95,7 +91,7 @@ jobs:
       run: >
         az deployment sub create \
           --location '${{ env.LOCATION }}' \
-          --template-file ${{ env.IACPATH }}/main.bicep \
+          --template-file IaC/main.bicep \
           --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
                        acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
                        appServiceName='${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' \
@@ -140,7 +136,7 @@ jobs:
     - name: Update web app url in Run Settings
       shell: powershell
       run: |
-          cd Application\aspnet-core-dotnet-core.FunctionalTests
+          cd FunctionalTests
           [xml]$runSetting = Get-Content functionalTests.runsettings
           $runSetting.RunSettings.TestRunParameters.ChildNodes.Item(0).value = 'https://${{ env.APPNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net/'
           $runSetting.Save("$(pwd)/functionalTests.runsettings")
@@ -148,5 +144,5 @@ jobs:
     - name: Run tests
       continue-on-error: false
       run: |
-          cd Application\aspnet-core-dotnet-core.FunctionalTests
-          dotnet test aspnet-core-dotnet-core.FunctionalTests.csproj -s functionalTests.runsettings
+          cd FunctionalTests
+          dotnet test FunctionalTests.csproj -s functionalTests.runsettings

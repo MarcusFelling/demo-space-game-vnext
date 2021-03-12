@@ -38,7 +38,6 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
   location: resourceGroup().location
   properties: {
     siteConfig: {
-      netFrameworkVersion: 'v5.0'
       appSettings: [
         {
           name: 'DOCKER_REGISTRY_SERVER_URL'          

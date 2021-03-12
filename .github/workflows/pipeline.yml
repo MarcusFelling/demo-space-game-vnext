@@ -49,7 +49,7 @@ jobs:
         az deployment group create \
           --resource-group '${{ env.APPNAME }}-ACR-rg' \
           --template-file ${{ env.IACPATH }}/registry.bicep \
-          --parameters registryName='${{ env.REGISTRYNAME }}' \
+          --parameters registry='${{ env.REGISTRYNAME }}' \
                        registrySku='${{ env. REGISTRYSKU }}'        
 
     - name: Fetch ACR credentials

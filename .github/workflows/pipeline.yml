@@ -33,7 +33,6 @@ jobs:
             dotnet restore
             dotnet build --configuration Release
             dotnet test UnitTests/aspnet-core-dotnet-core.UnitTests.csproj  --verbosity normal
-            popd
 
     # Ensure Bicep template transpile successfully
     - name: Bicep build

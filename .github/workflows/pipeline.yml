@@ -44,7 +44,7 @@ jobs:
       run: | 
         az bicep build --files ${{ env.IACPATH }}/main.bicep
 
-    - name: Create Azure container registry with Bicep
+    - name: Create Azure container registry using Bicep
       run: >
         az deployment group create \
           --resource-group '${{ env.APPNAME }}-ACR-rg' \
@@ -87,14 +87,18 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Deploy infrastructure with Bicep
+    - name: Extract branch name to append to app name
+      shell: bash
+      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
+
+    - name: Deploy infrastructure using Bicep
       run: >
         az deployment sub create \
           --location '${{ env.LOCATION }}' \
           --template-file ${{ env.IACPATH }}/main.bicep \
           --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
                        acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
-                       appServiceName='${{ env.APPNAME }}-${{ github.run_id }}' \
+                       appServiceName='${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' \
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
@@ -116,7 +120,7 @@ jobs:
     - name: 'Deploy to Azure Web App for Containers'
       uses: azure/webapps-deploy@v2
       with: 
-        app-name: ${{ env.APPNAME }} 
+        app-name: '${{ env.APPNAME }}-${{ env.BRANCH_NAME }}'
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
   FunctionalTests:
@@ -138,7 +142,7 @@ jobs:
       run: |
           cd Application\aspnet-core-dotnet-core.FunctionalTests
           [xml]$runSetting = Get-Content functionalTests.runsettings
-          $runSetting.RunSettings.TestRunParameters.ChildNodes.Item(0).value = 'https://${{ env.APPNAME }}.azurewebsites.net/'
+          $runSetting.RunSettings.TestRunParameters.ChildNodes.Item(0).value = 'https://${{ env.APPNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net/'
           $runSetting.Save("$(pwd)/functionalTests.runsettings")
 
     - name: Run tests

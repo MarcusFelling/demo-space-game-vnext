@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\aspnet-core-dotnet-core\aspnet-core-dotnet-core.csproj" />
+    <ProjectReference Include="..\WebApp\aspnet-core-dotnet-core.csproj" />
   </ItemGroup>
 
 </Project>

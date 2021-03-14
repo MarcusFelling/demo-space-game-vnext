@@ -15,7 +15,7 @@ env:
 
 jobs:
   buildApp:
-    name: Build App and push to ACR
+    name: Build - App
     runs-on: ubuntu-latest  
     steps:
     - uses: actions/checkout@master
@@ -63,7 +63,7 @@ jobs:
         docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}  
 
   buildDatabase:
-    name: Build db project
+    name: Build - Database
     runs-on: windows-latest  
     steps:
     - uses: actions/checkout@master
@@ -81,7 +81,7 @@ jobs:
         path: Database/bin/Debug/Database.dacpac
 
   buildIaC:
-    name: Build Bicep
+    name: Build - Infrastructure
     runs-on: ubuntu-latest  
     steps:
     - uses: actions/checkout@master
@@ -90,7 +90,7 @@ jobs:
         az bicep build --files IaC/main.bicep    
 
   devDeploy:
-    name: Deploy infrastructure and application
+    name: Deploy infrastructure, then application
     env: 
       ENVIRONMENTNAME: dev
     needs: [buildApp, buildDatabase, buildIaC]
@@ -149,7 +149,7 @@ jobs:
     - name: 'Set environment variable that tests use for site URL'
       shell: cmd
       run: |
-          setx SITE_URL 'https://${{ env.APPNAME }}-dev.azurewebsites.net' /M
+          setx SITE_URL 'https://${{ env.APPNAME }}-main.azurewebsites.net' /M
           echo "site URL to test:" 'https://${{ env.APPNAME }}-main.azurewebsites.net'
 
     - name: Run tests

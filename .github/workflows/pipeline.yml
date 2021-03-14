@@ -1,5 +1,5 @@
 name: pipeline
-on: [push]
+on: [push, workflow_dispatch]
  # environments: https://github.com/mickeygousset/youtube-demos/blob/main/.github/workflows/simple-manual-workflow-three-env.yml
 env:
   APPNAME: spacegamevnext
@@ -15,7 +15,7 @@ env:
 
 jobs:
   buildApp:
-    name: Build and push application to ACR
+    name: Build App and push to ACR
     runs-on: ubuntu-latest  
     steps:
     - uses: actions/checkout@master
@@ -72,7 +72,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1
     
     - name: Use MSBuild to build db project
-      run: MSBuild.exe Database/Database.csproj
+      run: MSBuild.exe Database/Database.sqlproj
     
     - name: Upload dacpac as artifact    
       uses: actions/upload-artifact@v2
@@ -93,7 +93,7 @@ jobs:
     name: Deploy infrastructure and application
     env: 
       ENVIRONMENTNAME: dev
-    needs: buildApp
+    needs: [buildApp, buildDatabase, buildIaC]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master

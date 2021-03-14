@@ -1,9 +1,8 @@
 name: pipeline
-on: [push]
+on: [workflow_dispatch]
  # environments: https://github.com/mickeygousset/youtube-demos/blob/main/.github/workflows/simple-manual-workflow-three-env.yml
 env:
   APPNAME: spacegamevnext
-  DOCKERFILEPATH: 'WebApp'
   REGISTRYSKU: 'Standard'
   REGISTRYNAME: 'marcusfellingspacegamevnextacr'
   IMAGENAME: 'spacegamevnext'
@@ -12,13 +11,11 @@ env:
   DEVENV: 'true'
   BUILDCONFIGURATION: Release
   DOTNETSDKVERSION: 5.0.103
-
-  # WWROOTDIR: '${{ env.APPLICATIONPATH }}/wwwroot'
-  # SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.APPID }}.azurewebsites.net'
+  #SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.APPID }}.azurewebsites.net'
 
 jobs:
-  build:
-    name: Build and push application to ACR
+  buildApp:
+    name: Build App and push to ACR
     runs-on: ubuntu-latest  
     steps:
     - uses: actions/checkout@master
@@ -30,14 +27,11 @@ jobs:
 
     - name: Build app and run unit tests 
       run: | 
-            dotnet restore
-            dotnet build --configuration Release
-            dotnet test UnitTests/aspnet-core-dotnet-core.UnitTests.csproj  --verbosity normal
-
-    # Ensure Bicep template transpile successfully
-    - name: Bicep build
-      run: | 
-        az bicep build --files IaC/main.bicep
+            dotnet restore WebApp/WebApp.csproj
+            dotnet restore UnitTests/UnitTests.csproj
+            dotnet build WebApp/WebApp.csproj --configuration ${{ env.BUILDCONFIGURATION }}
+            dotnet build UnitTests/UnitTests.csproj --configuration ${{ env.BUILDCONFIGURATION }}
+            dotnet test UnitTests/UnitTests.csproj --verbosity normal
 
     - name: Create Azure container registry using Bicep
       run: >
@@ -65,14 +59,41 @@ jobs:
     - name: Docker Build & Push to ACR
       run: |
         docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
-        docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+        docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
         docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}  
 
-  deploy:
+  buildDatabase:
+    name: Build db project
+    runs-on: windows-latest  
+    steps:
+    - uses: actions/checkout@master
+    
+    - name: setup-msbuild
+      uses: microsoft/setup-msbuild@v1
+    
+    - name: Use MSBuild to build db project
+      run: MSBuild.exe Database/Database.sqlproj
+    
+    - name: Upload dacpac as artifact    
+      uses: actions/upload-artifact@v2
+      with:
+        name: dacpac
+        path: Database/bin/Debug/Database.dacpac
+
+  buildIaC:
+    name: Build Bicep
+    runs-on: ubuntu-latest  
+    steps:
+    - uses: actions/checkout@master
+    - name: Bicep build
+      run: | 
+        az bicep build --files IaC/main.bicep    
+
+  devDeploy:
     name: Deploy infrastructure and application
     env: 
       ENVIRONMENTNAME: dev
-    needs: build
+    needs: [buildApp, buildDatabase, buildIaC]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -119,29 +140,18 @@ jobs:
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
   FunctionalTests:
-    name: Functional tests
-    env: 
-      ENVIRONMENTNAME: dev     
+    name: Run functional tests
     runs-on: windows-latest
     needs: deploy
     steps:
     - uses: actions/checkout@master
 
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    - name: Update web app url in Run Settings
-      shell: powershell
+    - name: 'Set environment variable that tests use for site URL'
+      shell: cmd
       run: |
-          cd FunctionalTests
-          [xml]$runSetting = Get-Content functionalTests.runsettings
-          $runSetting.RunSettings.TestRunParameters.ChildNodes.Item(0).value = 'https://${{ env.APPNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net/'
-          $runSetting.Save("$(pwd)/functionalTests.runsettings")
+          setx SITE_URL 'https://${{ env.APPNAME }}-dev.azurewebsites.net' /M
+          echo "site URL to test:" 'https://${{ env.APPNAME }}-main.azurewebsites.net'
 
     - name: Run tests
       continue-on-error: false
-      run: |
-          cd FunctionalTests
-          dotnet test FunctionalTests.csproj -s functionalTests.runsettings
+      run: dotnet test FunctionalTests/FunctionalTests.csproj

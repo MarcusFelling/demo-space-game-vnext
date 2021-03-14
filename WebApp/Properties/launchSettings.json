@@ -3,8 +3,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:50478/",
-      "sslPort": 44327
+      "applicationUrl": "http://localhost:49769/",
+      "sslPort": 44385
     }
   },
   "profiles": {
@@ -15,13 +15,20 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "aspnet-core-dotnet-core": {
+    "Tailspin.SpaceGame.Web": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "publishAllPorts": true,
+      "useSSL": true
     }
   }
 }

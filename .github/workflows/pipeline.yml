@@ -11,12 +11,10 @@ env:
   DEVENV: 'true'
   BUILDCONFIGURATION: Release
   DOTNETSDKVERSION: 5.0.103
-
-  # WWROOTDIR: '${{ env.APPLICATIONPATH }}/wwwroot'
-  # SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.APPID }}.azurewebsites.net'
+  SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.APPID }}.azurewebsites.net'
 
 jobs:
-  build:
+  buildApp:
     name: Build and push application to ACR
     runs-on: ubuntu-latest  
     steps:
@@ -29,14 +27,11 @@ jobs:
 
     - name: Build app and run unit tests 
       run: | 
-            dotnet restore
-            dotnet build --configuration ${{ env.BUILDCONFIGURATION }}
-            dotnet test UnitTests/UnitTests.csproj  --verbosity normal
-
-    # Ensure Bicep template transpile successfully
-    - name: Bicep build
-      run: | 
-        az bicep build --files IaC/main.bicep
+            dotnet restore WebApp/WebApp.csproj
+            dotnet restore UnitTests/UnitTests.csproj
+            dotnet build WebApp/WebApp.csproj --configuration ${{ env.BUILDCONFIGURATION }}
+            dotnet build UnitTests/UnitTests.csproj --configuration ${{ env.BUILDCONFIGURATION }}
+            dotnet test UnitTests/UnitTests.csproj --verbosity normal
 
     - name: Create Azure container registry using Bicep
       run: >
@@ -67,11 +62,38 @@ jobs:
         docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
         docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}  
 
+  buildDatabase:
+    name: Build db project
+    runs-on: windows-latest  
+    steps:
+    - uses: actions/checkout@master
+    
+    - name: setup-msbuild
+      uses: microsoft/setup-msbuild@v1
+    
+    - name: Use MSBuild to build db project
+      run: MSBuild.exe Database/Database.csproj
+    
+    - name: Upload dacpac as artifact    
+      uses: actions/upload-artifact@v2
+      with:
+        name: dacpac
+        path: /bin/**/Database.dacpac
+
+  buildIaC:
+    name: Build Bicep
+    runs-on: ubuntu-latest  
+    steps:
+    - uses: actions/checkout@master
+    - name: Bicep build
+      run: | 
+        az bicep build --files IaC/main.bicep    
+
   deploy:
     name: Deploy infrastructure and application
     env: 
       ENVIRONMENTNAME: dev
-    needs: build
+    needs: buildApp
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master

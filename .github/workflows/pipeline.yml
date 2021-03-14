@@ -89,7 +89,7 @@ jobs:
         az bicep build --files IaC/main.bicep    
 
   dev:
-    name: Deploy infrastructure, then application
+    name: Deploy - dev
     environment: dev
     needs: [buildApp, buildDatabase, buildIaC]
     runs-on: ubuntu-latest

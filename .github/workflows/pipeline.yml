@@ -11,7 +11,7 @@ env:
   DEVENV: 'true'
   BUILDCONFIGURATION: Release
   DOTNETSDKVERSION: 5.0.103
-  SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.APPID }}.azurewebsites.net'
+  #SITE_URL: 'https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.APPID }}.azurewebsites.net'
 
 jobs:
   buildApp:

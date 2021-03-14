@@ -1,0 +1,177 @@
+[
+  {
+    "id": "1",
+    "profileId": "1",
+    "score": 999999,
+    "gameMode": "Solo",
+    "gameRegion": "Milky Way"
+  },
+  {
+    "id": "2",
+    "profileId": "2",
+    "score": 999998,
+    "gameMode": "Solo",
+    "gameRegion": "NGC 1300"
+  },
+  {
+    "id": "3",
+    "profileId": "3",
+    "score": 856999,
+    "gameMode": "Duo",
+    "gameRegion": "Ring Nebula"
+  },
+  {
+    "id": "4",
+    "profileId": "4",
+    "score": 766979,
+    "gameMode": "Solo",
+    "gameRegion": "Milky Way"
+  },
+  {
+    "id": "5",
+    "profileId": "5",
+    "score": 669939,
+    "gameMode": "Solo",
+    "gameRegion": "Messier 82"
+  },
+  {
+    "id": "6",
+    "profileId": "6",
+    "score": 666555,
+    "gameMode": "Duo",
+    "gameRegion": "Ring Nebula"
+  },
+  {
+    "id": "7",
+    "profileId": "7",
+    "score": 665554,
+    "gameMode": "Trio",
+    "gameRegion": "Milky Way"
+  },
+  {
+    "id": "8",
+    "profileId": "8",
+    "score": 566525,
+    "gameMode": "Solo",
+    "gameRegion": "Messier 82"
+  },
+  {
+    "id": "9",
+    "profileId": "9",
+    "score": 411515,
+    "gameMode": "Trio",
+    "gameRegion": "NGC 1300"
+  },
+  {
+    "id": "10",
+    "profileId": "10",
+    "score": 311515,
+    "gameMode": "Trio",
+    "gameRegion": "Milky Way"
+  },
+  {
+    "id": "11",
+    "profileId": "11",
+    "score": 213315,
+    "gameMode": "Solo",
+    "gameRegion": "Andromeda"
+  },
+  {
+    "id": "12",
+    "profileId": "12",
+    "score": 111525,
+    "gameMode": "Trio",
+    "gameRegion": "NGC 1300"
+  },
+  {
+    "id": "13",
+    "profileId": "13",
+    "score": 268821,
+    "gameMode": "Solo",
+    "gameRegion": "Pinwheel"
+  },
+  {
+    "id": "14",
+    "profileId": "14",
+    "score": 91525,
+    "gameMode": "Solo",
+    "gameRegion": "Ring Nebula"
+  },
+  {
+    "id": "15",
+    "profileId": "15",
+    "score": 91524,
+    "gameMode": "Duo",
+    "gameRegion": "Messier 82"
+  },
+  {
+    "id": "16",
+    "profileId": "16",
+    "score": 91523,
+    "gameMode": "Solo",
+    "gameRegion": "Pinwheel"
+  },
+  {
+    "id": "17",
+    "profileId": "17",
+    "score": 91425,
+    "gameMode": "Solo",
+    "gameRegion": "Milky Way"
+  },
+  {
+    "id": "18",
+    "profileId": "18",
+    "score": 81525,
+    "gameMode": "Duo",
+    "gameRegion": "Pinwheel"
+  },
+  {
+    "id": "19",
+    "profileId": "19",
+    "score": 71525,
+    "gameMode": "Trio",
+    "gameRegion": "Andromeda"
+  },
+  {
+    "id": "20",
+    "profileId": "20",
+    "score": 61525,
+    "gameMode": "Solo",
+    "gameRegion": "Milky Way"
+  },
+  {
+    "id": "21",
+    "profileId": "1",
+    "score": 51525,
+    "gameMode": "Duo",
+    "gameRegion": "NGC 1300"
+  },
+  {
+    "id": "22",
+    "profileId": "2",
+    "score": 41525,
+    "gameMode": "Trio",
+    "gameRegion": "Messier 82"
+  },
+  {
+    "id": "23",
+    "profileId": "3",
+    "score": 31525,
+    "gameMode": "Solo",
+    "gameRegion": "Andromeda"
+  },
+  {
+    "id": "24",
+    "profileId": "4",
+    "score": 21525,
+    "gameMode": "Trio",
+    "gameRegion": "NGC 1300"
+  },
+  {
+    "id": "25",
+    "profileId": "5",
+    "score": 11525,
+    "gameMode": "Duo",
+    "gameRegion": "Ring Nebula"
+  }
+]

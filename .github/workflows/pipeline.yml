@@ -1,5 +1,5 @@
 name: pipeline
-on: [push, workflow_dispatch]
+on: [workflow_dispatch]
  # environments: https://github.com/mickeygousset/youtube-demos/blob/main/.github/workflows/simple-manual-workflow-three-env.yml
 env:
   APPNAME: spacegamevnext
@@ -89,7 +89,7 @@ jobs:
       run: | 
         az bicep build --files IaC/main.bicep    
 
-  deploy:
+  devDeploy:
     name: Deploy infrastructure and application
     env: 
       ENVIRONMENTNAME: dev
@@ -140,29 +140,18 @@ jobs:
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
   FunctionalTests:
-    name: Functional tests
-    env: 
-      ENVIRONMENTNAME: dev     
+    name: Run functional tests
     runs-on: windows-latest
     needs: deploy
     steps:
     - uses: actions/checkout@master
 
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    - name: Update web app url in Run Settings
-      shell: powershell
+    - name: 'Set environment variable that tests use for site URL'
+      shell: cmd
       run: |
-          cd FunctionalTests
-          [xml]$runSetting = Get-Content functionalTests.runsettings
-          $runSetting.RunSettings.TestRunParameters.ChildNodes.Item(0).value = 'https://${{ env.APPNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net/'
-          $runSetting.Save("$(pwd)/functionalTests.runsettings")
+          setx SITE_URL 'https://${{ env.APPNAME }}-dev.azurewebsites.net' /M
+          echo "site URL to test:" 'https://${{ env.APPNAME }}-main.azurewebsites.net'
 
     - name: Run tests
       continue-on-error: false
-      run: |
-          cd FunctionalTests
-          dotnet test FunctionalTests.csproj -s functionalTests.runsettings
+      run: dotnet test FunctionalTests/FunctionalTests.csproj

@@ -88,10 +88,9 @@ jobs:
       run: | 
         az bicep build --files IaC/main.bicep    
 
-  devDeploy:
+  dev:
     name: Deploy infrastructure, then application
-    env: 
-      ENVIRONMENTNAME: dev
+    environment: dev
     needs: [buildApp, buildDatabase, buildIaC]
     runs-on: ubuntu-latest
     steps:
@@ -138,10 +137,11 @@ jobs:
         app-name: '${{ env.APPNAME }}-${{ env.BRANCH_NAME }}'
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
-  FunctionalTests:
+  test:
     name: Run functional tests
     runs-on: windows-latest
-    needs: devDeploy
+    environment: test
+    needs: dev
     steps:
     - uses: actions/checkout@master
 

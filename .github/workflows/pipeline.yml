@@ -78,7 +78,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: dacpac
-        path: /bin/**/Database.dacpac
+        path: Database/bin/Debug/Database.dacpac
 
   buildIaC:
     name: Build Bicep

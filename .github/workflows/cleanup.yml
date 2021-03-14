@@ -1,0 +1,20 @@
+name: cleanup
+
+on:
+  pull_request:
+    types: [closed]
+env:
+  APPNAME: spacegamevnext    
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Azure authentication
+      uses: azure/login@v1 
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: get source branch name for app
+      run: |
+          echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV        
+    - name: Cleanup dev environment after PR is closed
+      run: az webapp delete --name ${{ env.APPNAME }}-${{ env.BRANCH_NAME }} --resource-group ${{ env.APPNAME }}-dev-rg

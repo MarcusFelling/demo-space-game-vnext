@@ -34,15 +34,15 @@ namespace UITests
                 switch (browser)
                 {
                     case "Chrome":
-                        envWebDriver = Environment.GetEnvironmentVariable("ChromeWebDriver");
+                        envWebDriver = Environment.GetEnvironmentVariable("CHROMEWEBDRIVER");
                         driver = new ChromeDriver(envWebDriver);
                         break;
                     case "Firefox":
-                        envWebDriver = Environment.GetEnvironmentVariable("GeckoWebDriver");
+                        envWebDriver = Environment.GetEnvironmentVariable("GECKOWEBDRIVER");
                         driver = new FirefoxDriver(envWebDriver);
                         break;
                     case "IE":
-                        envWebDriver = Environment.GetEnvironmentVariable("IEWebDriver");
+                        envWebDriver = Environment.GetEnvironmentVariable("EDGEWEBDRIVER");
                         driver = new InternetExplorerDriver(envWebDriver);
                         break;
                     default:

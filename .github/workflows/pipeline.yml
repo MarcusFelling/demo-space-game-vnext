@@ -105,7 +105,26 @@ jobs:
       run: |
           echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV
 
-    - name: Deploy infrastructure using Bicep
+    - name: Preview infrastructure changes
+      run: >
+        az deployment sub what-if \
+          --location '${{ env.LOCATION }}' \
+          --template-file IaC/main.bicep \
+          --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
+                       acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
+                       appServiceName='${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' \
+                       servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
+                       appSku='${{ env.SKU }}' \
+                       registryName='${{ env.REGISTRYNAME }}' \
+                       imageName='${{ env.IMAGENAME }}' \
+                       registrySku='${{ env.REGISTRYSKU }}' \
+                       sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
+                       dbName='${{ env.APPNAME }}database' \
+                       dbUserName='${{ secrets.DBUSERNAME }}' \
+                       dbPassword='${{ secrets.DBPASSWORD }}' \
+                       devEnv='${{ env.DEVENV }}'
+
+    - name: Deploy infrastructure
       run: >
         az deployment sub create \
           --location '${{ env.LOCATION }}' \

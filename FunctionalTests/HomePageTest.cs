@@ -28,7 +28,7 @@ namespace UITests
             try
             {
                 // Create the driver for the current browser.
-                // get driver path for hosted MS Agent (windows-2019, vs2017-win2016)
+                // https://github.com/actions/virtual-environments/blob/win19/20210219.1/images/win/Windows2019-Readme.md#browsers-and-webdrivers
                 string envWebDriver = null;
 
                 switch (browser)

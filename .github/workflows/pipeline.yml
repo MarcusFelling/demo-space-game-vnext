@@ -91,6 +91,8 @@ jobs:
   dev:
     name: Deploy - dev
     environment: dev
+    env:
+      ENVIRONMENTNAME: dev
     needs: [buildApp, buildDatabase, buildIaC]
     runs-on: ubuntu-latest
     steps:

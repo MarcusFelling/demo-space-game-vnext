@@ -32,7 +32,7 @@ resource acrrg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 
 // Create registry
 module registry 'registry.bicep' = {
-  name: 'registry'
+  name: 'spacegame-registry'
   scope: acrrg
   params:{
     registry: registryName
@@ -42,7 +42,7 @@ module registry 'registry.bicep' = {
 
 // Create database infrastructure
 module db 'db.bicep' = {
-  name: 'db'
+  name: 'spacegame-db'
   scope: rg
   params:{
     sqlServerName: sqlServerName
@@ -54,7 +54,7 @@ module db 'db.bicep' = {
 
 // Create web app infrastructure
 module webapp 'webapp.bicep' = {
-  name: 'webapp'
+  name: 'spacegame-webapp'
   scope: rg
   params:{
     servicePlanName: servicePlanName

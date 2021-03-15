@@ -88,7 +88,7 @@ jobs:
       run: | 
         az bicep build --files IaC/main.bicep    
 
-  dev:
+  deployDev:
     name: Deploy - dev
     environment: dev
     env:
@@ -158,17 +158,94 @@ jobs:
         app-name: '${{ env.APPNAME }}-${{ env.BRANCH_NAME }}'
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:latest
 
-  test:
-    name: Run functional tests
+  deployTest:
+    name: Deploy - test
+    runs-on: ubuntu-latest
+    environment: test
+    env:
+      ENVIRONMENTNAME: test
+    needs: deployDev
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy infrastructure
+      run: >
+        az deployment sub create \
+          --location '${{ env.LOCATION }}' \
+          --template-file IaC/main.bicep \
+          --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
+                       acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
+                       appServiceName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' \
+                       servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
+                       appSku='${{ env.SKU }}' \
+                       registryName='${{ env.REGISTRYNAME }}' \
+                       imageName='${{ env.IMAGENAME }}' \
+                       registrySku='${{ env.REGISTRYSKU }}' \
+                       sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
+                       dbName='${{ env.APPNAME }}database' \
+                       dbUserName='${{ secrets.DBUSERNAME }}' \
+                       dbPassword='${{ secrets.DBPASSWORD }}' \
+                       devEnv='${{ env.DEVENV }}'
+
+    - name: Get ACR credentials
+      id: getACRCred
+      run: |
+           echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
+           echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
+           echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
+
+    - name: 'Deploy to Azure Web App for Containers'
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}'
+        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:latest
+
+  testFunctional:
+    name: Test - Functional tests
+    runs-on: windows-latest
+    environment: test
+    env:
+      ENVIRONMENTNAME: test
+      SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
+    needs: deployTest
+    steps:
+    - name: Run functional tests
+      continue-on-error: false
+      run: dotnet test FunctionalTests/FunctionalTests.csproj
+
+  testLoad:
+    name: Test - Load tests
     runs-on: ubuntu-latest
     environment: test
     env:
       ENVIRONMENTNAME: test
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
-    needs: dev
+    needs: testFunctional
     steps:
-    - uses: actions/checkout@master
+    - name: Run load tests
+      run: | 
+        wget -c ftp.ps.pl/pub/apache/jmeter/binaries/apache-jmeter-5.4.tgz
+        tar -zxvf apache-jmeter-5.4.tgz         
+        apache-jmeter-5.4/bin/./jmeter -n -t LoadTests/LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
+        sudo apt-get update
+        sudo apt-get install xsltproc
+        xsltproc JMeter2JUnit.xsl Results.xml > JUnit.xml
 
-    - name: Run tests
-      continue-on-error: false
-      run: dotnet test FunctionalTests/FunctionalTests.csproj
+    - name: Publish test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1.9
+      with:
+        # GitHub API Access Token
+        github_token: ${{ github.token }}
+        # Name of the created check run
+        check_name: Load Test Results
+        # Title of PR comments, defaults to value of check_name input
+        comment_title: Load Tests
+        # File pattern of test result files
+        files: JUnit.xml
+        # Control PR comments: false - disable PR comments, true - comment on PRs
+        comment_on_pr: true

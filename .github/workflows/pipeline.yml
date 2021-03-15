@@ -162,15 +162,11 @@ jobs:
     name: Run functional tests
     runs-on: windows-latest
     environment: test
+    env:
+      SITE_URL: 'https://spacegamevnext-main.azurewebsites.net'
     needs: dev
     steps:
     - uses: actions/checkout@master
-
-    - name: 'Set environment variable that tests use for site URL'
-      shell: cmd
-      run: |
-          setx SITE_URL https://${{ env.APPNAME }}-main.azurewebsites.net /M
-          echo "site URL to test:" %SITE_URL%
 
     - name: Run tests
       continue-on-error: false

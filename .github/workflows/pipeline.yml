@@ -266,8 +266,7 @@ jobs:
       if: success() || failure()
       with:
         github_token: ${{ secrets.GHTOKEN }}
-        comment_title: Load Tests
-        files: JUnit.xml
+        files: "**/*.xml"
         comment_on_pr: false
 
   deployProd:

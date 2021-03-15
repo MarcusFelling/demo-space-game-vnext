@@ -218,6 +218,7 @@ jobs:
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
     needs: deployTest
     steps:
+    - uses: actions/checkout@master
     - name: Run functional tests
       continue-on-error: false
       run: dotnet test FunctionalTests/FunctionalTests.csproj
@@ -231,6 +232,7 @@ jobs:
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
     needs: testFunctional
     steps:
+    - uses: actions/checkout@master
     - name: Run load tests
       run: | 
         wget -c ftp.ps.pl/pub/apache/jmeter/binaries/apache-jmeter-5.4.tgz

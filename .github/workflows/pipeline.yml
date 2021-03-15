@@ -255,7 +255,7 @@ jobs:
         apache-jmeter-5.4/bin/./jmeter -n -t LoadTests/LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
         sudo apt-get update
         sudo apt-get install xsltproc
-        xsltproc JMeter2JUnit.xsl Results.xml > JUnit.xml
+        xsltproc LoadTests/JMeter2JUnit.xsl Results.xml > JUnit.xml
 
     - name: Publish test Results
       uses: EnricoMi/publish-unit-test-result-action@v1.9

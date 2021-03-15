@@ -158,7 +158,22 @@ jobs:
       uses: azure/webapps-deploy@v2
       with: 
         app-name: '${{ env.APPNAME }}-${{ env.BRANCH_NAME }}'
-        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }} 
+        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+
+    - name: Add PR comment with site url
+      uses: actions/github-script@0.9.0
+      if: github.event_name == 'pull_request'
+      with:
+        github-token: ${{ secrets.GHTOKEN }}
+        script: |
+          const comment = `Your changes are ready for testing: https://${{ env.APPNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net`;
+
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          })
 
   deployTest:
     name: Deploy - test
@@ -246,7 +261,7 @@ jobs:
       uses: EnricoMi/publish-unit-test-result-action@v1.9
       with:
         # GitHub API Access Token
-        github_token: ${{ github.token }}
+        github_token: ${{ secrets.GHTOKEN }}
         # Name of the created check run
         check_name: Load Test Results
         # Title of PR comments, defaults to value of check_name input

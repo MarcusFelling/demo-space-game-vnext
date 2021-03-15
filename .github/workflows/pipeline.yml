@@ -110,7 +110,7 @@ jobs:
     - name: Preview infrastructure changes
       run: >
         az deployment sub what-if \
-          --name 'deploy-${{ env.ENVIRONMENTNAME }}' \
+          --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
           --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
@@ -131,7 +131,7 @@ jobs:
     - name: Deploy infrastructure
       run: >
         az deployment sub create \
-          --name 'deploy-${{ env.ENVIRONMENTNAME }}' \
+          --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
           --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
@@ -196,7 +196,7 @@ jobs:
     - name: Deploy infrastructure
       run: >
         az deployment sub create \
-          --name 'deploy-${{ env.ENVIRONMENTNAME }}' \
+          --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
           --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
@@ -289,7 +289,7 @@ jobs:
     - name: Deploy infrastructure
       run: >
         az deployment sub create \
-          --name 'deploy-${{ env.ENVIRONMENTNAME }}' \
+          --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
           --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \

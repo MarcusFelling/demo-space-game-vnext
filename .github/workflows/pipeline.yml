@@ -8,7 +8,7 @@ env:
   IMAGENAME: 'spacegamevnext'
   LOCATION: 'WestUS'
   SKU: 'S1'
-  DEVENV: 'true'
+  DEVENV: true
   BUILDCONFIGURATION: Release
   DOTNETSDKVERSION: 5.0.103
 
@@ -58,8 +58,8 @@ jobs:
     - name: Docker Build & Push to ACR
       run: |
         docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
-        docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:latest
-        docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:latest  
+        docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }} 
+        docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}   
 
   buildDatabase:
     name: Build - Database
@@ -119,6 +119,7 @@ jobs:
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.IMAGENAME }}' \
+                       tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
                        dbName='${{ env.APPNAME }}database' \
@@ -138,6 +139,7 @@ jobs:
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.IMAGENAME }}' \
+                       tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
                        dbName='${{ env.APPNAME }}database' \
@@ -156,7 +158,7 @@ jobs:
       uses: azure/webapps-deploy@v2
       with: 
         app-name: '${{ env.APPNAME }}-${{ env.BRANCH_NAME }}'
-        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:latest
+        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }} 
 
   deployTest:
     name: Deploy - test
@@ -164,6 +166,7 @@ jobs:
     environment: test
     env:
       ENVIRONMENTNAME: test
+      DEVENV: false
     needs: deployDev
     steps:
     - uses: actions/checkout@master
@@ -185,6 +188,7 @@ jobs:
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.IMAGENAME }}' \
+                       tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
                        dbName='${{ env.APPNAME }}database' \
@@ -203,7 +207,7 @@ jobs:
       uses: azure/webapps-deploy@v2
       with: 
         app-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}'
-        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:latest
+        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }} 
 
   testFunctional:
     name: Test - Functional tests
@@ -249,3 +253,52 @@ jobs:
         files: JUnit.xml
         # Control PR comments: false - disable PR comments, true - comment on PRs
         comment_on_pr: true
+
+  deployProd:
+    name: Deploy - prod
+    runs-on: ubuntu-latest
+    environment: prod
+    env:
+      ENVIRONMENTNAME: prod
+      DEVENV: false
+    needs: deployDev
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy infrastructure
+      run: >
+        az deployment sub create \
+          --location '${{ env.LOCATION }}' \
+          --template-file IaC/main.bicep \
+          --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
+                       acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
+                       appServiceName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' \
+                       servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
+                       appSku='${{ env.SKU }}' \
+                       registryName='${{ env.REGISTRYNAME }}' \
+                       imageName='${{ env.IMAGENAME }}' \
+                       tag='${{ github.sha }}' \
+                       registrySku='${{ env.REGISTRYSKU }}' \
+                       sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
+                       dbName='${{ env.APPNAME }}database' \
+                       dbUserName='${{ secrets.DBUSERNAME }}' \
+                       dbPassword='${{ secrets.DBPASSWORD }}' \
+                       devEnv='${{ env.DEVENV }}'
+
+    - name: Get ACR credentials
+      id: getACRCred
+      run: |
+           echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
+           echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
+           echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
+
+    - name: 'Deploy to Azure Web App for Containers'
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}'
+        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}         

@@ -6,6 +6,7 @@ param startupCommand string = ''
 param acrResourceGroupName string
 param registry string
 param imageName string
+param tag string
 param sqlServer string
 param dbName string
 param dbUserName string
@@ -57,7 +58,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
         }
       ]
       appCommandLine: startupCommand
-      linuxFxVersion: 'DOCKER|${acr.properties.loginServer}/${imageName}'
+      linuxFxVersion: 'DOCKER|${acr.properties.loginServer}/${imageName}:${tag}'
     }
     serverFarmId: '${servicePlan.id}'    
   }

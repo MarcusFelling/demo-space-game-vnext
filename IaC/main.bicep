@@ -7,6 +7,7 @@ param servicePlanName string
 param appSku string
 param registryName string
 param imageName string
+param tag string
 param registrySku string
 param startupCommand string = ''
 param sqlServerName string
@@ -62,6 +63,7 @@ module webapp 'webapp.bicep' = {
     acrResourceGroupName: acrrg.name
     registry: registry.outputs.acrName
     imageName: imageName
+    tag: tag
     sqlServer: db.outputs.sqlServerFQDN // Use output from db module to set connection string
     dbName: dbName // Used for connection string
     dbUserName: dbUserName // Used for connection string

@@ -97,6 +97,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - uses: actions/download-artifact@v2
+      with:
+        name: dacpac
 
     - name: Azure authentication
       uses: azure/login@v1
@@ -156,6 +159,13 @@ jobs:
            echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
            echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
 
+    - name: Azure SQL Deploy
+      uses: Azure/sql-action@v1
+      with:
+        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql'
+        connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_DEV }}
+        dacpac-package: dacpac/database.dacpac
+
     - name: 'Deploy to Azure Web App for Containers'
       uses: azure/webapps-deploy@v2
       with: 
@@ -187,6 +197,9 @@ jobs:
     needs: [buildApp, buildDatabase, buildIaC]
     steps:
     - uses: actions/checkout@master
+    - uses: actions/download-artifact@v2
+      with:
+        name: dacpac
 
     - name: Azure authentication
       uses: azure/login@v1
@@ -220,6 +233,13 @@ jobs:
            echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
            echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
            echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
+
+    - name: Azure SQL Deploy
+      uses: Azure/sql-action@v1
+      with:
+        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql'
+        connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_TEST }}
+        dacpac-package: dacpac/database.dacpac
 
     - name: 'Deploy to Azure Web App for Containers'
       uses: azure/webapps-deploy@v2
@@ -268,7 +288,10 @@ jobs:
     needs: testLoad
     steps:
     - uses: actions/checkout@master
-
+    - uses: actions/download-artifact@v2
+      with:
+        name: dacpac
+        
     - name: Azure authentication
       uses: azure/login@v1
       with:
@@ -301,6 +324,13 @@ jobs:
            echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
            echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
            echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
+
+    - name: Azure SQL Deploy
+      uses: Azure/sql-action@v1
+      with:
+        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql'
+        connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_PROD }}
+        dacpac-package: dacpac/database.dacpac
 
     - name: 'Deploy to Azure Web App for Containers'
       uses: azure/webapps-deploy@v2

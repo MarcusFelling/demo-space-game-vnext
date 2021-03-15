@@ -169,8 +169,8 @@ jobs:
     - name: 'Set environment variable that tests use for site URL'
       shell: cmd
       run: |
-          setx SITE_URL 'https://${{ env.APPNAME }}-main.azurewebsites.net' /M
-          echo "site URL to test:" 'https://${{ env.APPNAME }}-main.azurewebsites.net'
+          setx SITE_URL https://${{ env.APPNAME }}-main.azurewebsites.net /M
+          echo "site URL to test:" %SITE_URL%
 
     - name: Run tests
       continue-on-error: false

@@ -1,5 +1,5 @@
 name: pipeline
-on: [workflow_dispatch]
+on: [push, workflow_dispatch]
  # environments: https://github.com/mickeygousset/youtube-demos/blob/main/.github/workflows/simple-manual-workflow-three-env.yml
 env:
   APPNAME: spacegamevnext

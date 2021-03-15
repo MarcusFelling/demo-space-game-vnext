@@ -167,7 +167,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       DEVENV: false
-    needs: deployDev
+    needs: [buildApp, buildDatabase, buildIaC]
     steps:
     - uses: actions/checkout@master
 

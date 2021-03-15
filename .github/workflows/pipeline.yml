@@ -263,7 +263,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: deployDev
+    needs: testLoad
     steps:
     - uses: actions/checkout@master
 

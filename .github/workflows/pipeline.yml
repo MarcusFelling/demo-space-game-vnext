@@ -160,10 +160,11 @@ jobs:
 
   test:
     name: Run functional tests
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     environment: test
     env:
-      SITE_URL: 'https://spacegamevnext-main.azurewebsites.net'
+      ENVIRONMENTNAME: test
+      SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
     needs: dev
     steps:
     - uses: actions/checkout@master

@@ -262,17 +262,13 @@ jobs:
 
     - name: Publish test Results
       uses: EnricoMi/publish-unit-test-result-action@v1.9
+      if: success() || failure()
       with:
         # GitHub API Access Token
         github_token: ${{ secrets.GHTOKEN }}
-        # Name of the created check run
-        check_name: Load Test Results
-        # Title of PR comments, defaults to value of check_name input
         comment_title: Load Tests
-        # File pattern of test result files
         files: JUnit.xml
-        # Control PR comments: false - disable PR comments, true - comment on PRs
-        comment_on_pr: true
+        comment_on_pr: false
 
   deployProd:
     name: Deploy - prod

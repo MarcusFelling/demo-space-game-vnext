@@ -357,7 +357,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: testLoad
+    needs: [testLoad, testFunctional]
     steps:
     - uses: actions/checkout@master
         

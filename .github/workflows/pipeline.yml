@@ -395,7 +395,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: testLoad
+    needs: deployProdInfra
     steps:
     - uses: actions/checkout@master
     - uses: actions/download-artifact@v2
@@ -421,7 +421,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: testLoad
+    needs: deployProdDB
     steps:
     - uses: actions/checkout@master
         

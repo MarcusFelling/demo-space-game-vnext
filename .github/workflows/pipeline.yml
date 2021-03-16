@@ -175,7 +175,7 @@ jobs:
     - name: Azure SQL Deploy
       uses: Azure/sql-action@v1
       with:
-        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql'
+        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net'
         connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_DEV }}
         dacpac-package: Database.dacpac
 
@@ -286,7 +286,7 @@ jobs:
     - name: Azure SQL Deploy
       uses: Azure/sql-action@v1
       with:
-        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql'
+        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net'
         connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_TEST }}
         dacpac-package: Database.dacpac
 
@@ -410,7 +410,7 @@ jobs:
     - name: Azure SQL Deploy
       uses: Azure/sql-action@v1
       with:
-        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql'
+        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net'
         connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_PROD }}
         dacpac-package: Database.dacpac     
 

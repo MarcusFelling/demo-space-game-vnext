@@ -172,7 +172,7 @@ jobs:
       with:
         server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql'
         connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_DEV }}
-        dacpac-package: dacpac/database.dacpac
+        dacpac-package: Database.dacpac
 
     - name: 'Deploy to Azure Web App for Containers'
       uses: azure/webapps-deploy@v2
@@ -248,7 +248,7 @@ jobs:
       with:
         server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql'
         connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_TEST }}
-        dacpac-package: database.dacpac
+        dacpac-package: Database.dacpac
 
     - name: 'Deploy to Azure Web App for Containers'
       uses: azure/webapps-deploy@v2
@@ -340,7 +340,7 @@ jobs:
       with:
         server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql'
         connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_PROD }}
-        dacpac-package: database.dacpac
+        dacpac-package: Database.dacpac
 
     - name: 'Deploy to Azure Web App for Containers'
       uses: azure/webapps-deploy@v2

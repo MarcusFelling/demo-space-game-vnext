@@ -116,7 +116,8 @@ jobs:
           --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
-          --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
+          --parameters environmentName=${{ env.ENVIRONMENTNAME }} \
+                       resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
                        acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
                        appServiceName='${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' \
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
@@ -137,7 +138,8 @@ jobs:
           --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
-          --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
+          --parameters environmentName=${{ env.ENVIRONMENTNAME }} \
+                       resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
                        acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
                        appServiceName='${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' \
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
@@ -212,7 +214,8 @@ jobs:
           --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
-          --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
+          --parameters environmentName=${{ env.ENVIRONMENTNAME }} \
+                       resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
                        acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
                        appServiceName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' \
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
@@ -303,7 +306,8 @@ jobs:
           --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
-          --parameters resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
+          --parameters environmentName=${{ env.ENVIRONMENTNAME }} \
+                       resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
                        acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
                        appServiceName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' \
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \

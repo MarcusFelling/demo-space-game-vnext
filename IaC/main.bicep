@@ -1,5 +1,6 @@
 // Creates all infrastructure for Space Game
 targetScope = 'subscription' // switch to sub scope to create resource group
+param environmentName string
 param resourceGroupName string
 param acrResourceGroupName string
 param appServiceName string
@@ -31,7 +32,7 @@ resource acrrg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 
 // Create registry
 module registry 'registry.bicep' = {
-  name: 'spacegame-registry'
+  name: 'spacegame-registry-${environmentName}'
   scope: acrrg
   params:{
     registry: registryName
@@ -41,7 +42,7 @@ module registry 'registry.bicep' = {
 
 // Create database infrastructure
 module db 'db.bicep' = {
-  name: 'spacegame-db'
+  name: 'spacegame-db-${environmentName}'
   scope: rg
   params:{
     sqlServerName: sqlServerName
@@ -53,7 +54,7 @@ module db 'db.bicep' = {
 
 // Create web app infrastructure
 module webapp 'webapp.bicep' = {
-  name: 'spacegame-webapp'
+  name: 'spacegame-webapp-${environmentName}'
   scope: rg
   params:{
     servicePlanName: servicePlanName

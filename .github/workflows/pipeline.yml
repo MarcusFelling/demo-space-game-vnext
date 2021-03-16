@@ -340,7 +340,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
-    needs: testFunctional
+    needs: deployTestApp
     steps:
     - uses: actions/checkout@master
     - name: Run load tests

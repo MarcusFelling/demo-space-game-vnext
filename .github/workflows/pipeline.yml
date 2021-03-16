@@ -326,7 +326,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
-    needs: [deployDevApp, deployTestApp]
+    needs: [deployTestApp]
     steps:
     - uses: actions/checkout@master
     - name: Run functional tests

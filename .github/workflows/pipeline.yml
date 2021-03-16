@@ -92,7 +92,7 @@ jobs:
         az bicep build --files IaC/main.bicep    
 
   deployDevInfra:
-    name: Deploy Infrastructure - dev
+    name: Deploy Dev Infra
     environment: dev
     env:
       ENVIRONMENTNAME: dev
@@ -155,7 +155,7 @@ jobs:
                        devEnv='${{ env.DEVENV }}'
 
   deployDevDB:
-    name: Deploy Database - dev
+    name: Deploy Dev DB
     environment: dev
     env:
       ENVIRONMENTNAME: dev
@@ -180,7 +180,7 @@ jobs:
         dacpac-package: Database.dacpac
 
   deployDevApp:
-    name: Deploy App - dev
+    name: Deploy Dev App
     environment: dev
     env:
       ENVIRONMENTNAME: dev
@@ -227,7 +227,7 @@ jobs:
           })
 
   deployTestInfra:
-    name: Deploy - test
+    name: Deploy Test Infra
     runs-on: ubuntu-latest
     environment: test
     env:
@@ -265,7 +265,7 @@ jobs:
                        devEnv='${{ env.DEVENV }}'
 
   deployTestDB:
-    name: Deploy - test
+    name: Deploy Test DB
     runs-on: windows-latest
     environment: test
     env:
@@ -291,7 +291,7 @@ jobs:
         dacpac-package: Database.dacpac
 
   deployTestApp:
-    name: Deploy - test
+    name: Deploy Test App
     runs-on: ubuntu-latest
     environment: test
     env:
@@ -351,7 +351,7 @@ jobs:
         apache-jmeter-5.4/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
 
   deployProdInfra:
-    name: Deploy - prod
+    name: Deploy Prod Infra
     runs-on: ubuntu-latest
     environment: prod
     env:
@@ -389,7 +389,7 @@ jobs:
                        devEnv='${{ env.DEVENV }}'         
 
   deployProdDB:
-    name: Deploy - prod
+    name: Deploy Prod DB
     runs-on: windows-latest
     environment: prod
     env:
@@ -415,7 +415,7 @@ jobs:
         dacpac-package: Database.dacpac     
 
   deployProdApp:
-    name: Deploy - prod
+    name: Deploy Prod App
     runs-on: ubuntu-latest
     environment: prod
     env:

@@ -10,9 +10,8 @@ param tag string
 param sqlServer string
 param dbName string
 param dbUserName string
-param dbPassword string {
-  secure: true
-}
+@secure()
+param dbPassword string
 param devEnv string // Used in condition for deployment slots
 
 resource servicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {

@@ -13,9 +13,8 @@ param startupCommand string = ''
 param sqlServerName string
 param dbName string
 param dbUserName string
-param dbPassword string {
-  secure: true
-}
+@secure()
+param dbPassword string
 param devEnv string // Used for conditionals on features like deployment slots
 
 // Create resource group for webapp and db

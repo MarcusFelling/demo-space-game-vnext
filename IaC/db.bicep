@@ -2,9 +2,8 @@
 param sqlServerName string
 param dbName string
 param dbUserName string
-param dbPassword string {
-  secure: true
-}
+@secure()
+param dbPassword string
 
 resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
   name: sqlServerName

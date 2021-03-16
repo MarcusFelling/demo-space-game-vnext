@@ -73,11 +73,17 @@ jobs:
     - name: Use MSBuild to build db project
       run: MSBuild.exe Database/Database.sqlproj
     
+    - name: Copy dacpac before artifact Upload
+      uses: canastro/copy-file-action@master
+      with:
+        source: "Database/bin/Debug/Database.dacpac"
+        target: "c"
+
     - name: Upload dacpac as artifact    
       uses: actions/upload-artifact@v2
       with:
         name: dacpac
-        path: Database/bin/Debug/Database.dacpac
+        path: Database.dacpac
 
   buildIaC:
     name: Build - Infrastructure
@@ -166,7 +172,7 @@ jobs:
       with:
         server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql'
         connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_DEV }}
-        dacpac-package: database.dacpac
+        dacpac-package: dacpac/database.dacpac
 
     - name: 'Deploy to Azure Web App for Containers'
       uses: azure/webapps-deploy@v2

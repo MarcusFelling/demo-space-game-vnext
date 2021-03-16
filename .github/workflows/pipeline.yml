@@ -320,13 +320,13 @@ jobs:
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }} 
 
   testFunctional:
-    name: Test - Functional tests
+    name: Run functional tests
     runs-on: windows-latest
     environment: test
     env:
       ENVIRONMENTNAME: test
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
-    needs: deployTestApp
+    needs: [deployDevApp, deployTestApp]
     steps:
     - uses: actions/checkout@master
     - name: Run functional tests
@@ -334,7 +334,7 @@ jobs:
       run: dotnet test FunctionalTests/FunctionalTests.csproj
 
   testLoad:
-    name: Test - Load tests
+    name: Run load tests
     runs-on: ubuntu-latest
     environment: test
     env:

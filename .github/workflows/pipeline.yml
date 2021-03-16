@@ -74,10 +74,7 @@ jobs:
       run: MSBuild.exe Database/Database.sqlproj
     
     - name: Copy dacpac before artifact Upload
-      uses: canastro/copy-file-action@master
-      with:
-        source: "Database/bin/Debug/Database.dacpac"
-        target: "c"
+      run: Copy-Item "Database/bin/Debug/Database.dacpac" -Destination "Database.dacpac"
 
     - name: Upload dacpac as artifact    
       uses: actions/upload-artifact@v2

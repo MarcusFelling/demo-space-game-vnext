@@ -88,7 +88,9 @@ jobs:
 
   deployDev:
     name: Deploy to Dev
-    environment: dev
+    environment: 
+      name: dev
+      url: https://${{ env.APPNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: dev
       DEVENV: true
@@ -173,25 +175,12 @@ jobs:
         app-name: '${{ env.APPNAME }}-${{ env.BRANCH_NAME }}'
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
 
-    - name: Add PR comment with site url
-      uses: actions/github-script@0.9.0
-      if: github.event_name == 'pull_request'
-      with:
-        github-token: ${{ secrets.GHTOKEN }}
-        script: |
-          const comment = `Your changes are ready for testing: https://${{ env.APPNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net`;
-
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          })
-
   deployTest:
     name: Deploy to Test
     runs-on: ubuntu-20.04
-    environment: test
+    environment: 
+      name: test
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
       DEVENV: false
@@ -282,7 +271,9 @@ jobs:
   deployProd:
     name: Deploy to Prod
     runs-on: ubuntu-20.04
-    environment: prod
+    environment: 
+      name: prod
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false

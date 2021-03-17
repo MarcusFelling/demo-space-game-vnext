@@ -166,7 +166,7 @@ jobs:
         name: dacpac
 
     - name: Azure SQL Deploy
-      uses: markhobson/sqlpackage:latest # Use container with sqlpackage.exe
+      uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
       with:
         args: /SourceFile:"Database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ env.DEVENV }}"
 

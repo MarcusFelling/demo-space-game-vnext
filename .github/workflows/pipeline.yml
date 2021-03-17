@@ -165,11 +165,6 @@ jobs:
       with:
         name: dacpac
 
-    - name: Azure authentication
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
     - name: Azure SQL Deploy
       uses: Azure/sql-action@v1
       with:
@@ -275,11 +270,6 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: dacpac
-
-    - name: Azure authentication
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Azure SQL Deploy
       uses: Azure/sql-action@v1
@@ -397,11 +387,6 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: dacpac
-        
-    - name: Azure authentication
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Azure SQL Deploy
       uses: Azure/sql-action@v1

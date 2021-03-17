@@ -1,6 +1,6 @@
 ![spaceGame](https://user-images.githubusercontent.com/6855361/111529516-3efed480-8730-11eb-9a73-a1f4727f3b21.PNG)
 
-The next iteration of [Demo.SpaceGame](https://github.com/MarcusFelling/Demo.SpaceGame)], now using containers and GitHub Actions 🚀!
+The next iteration of [Demo.SpaceGame](https://github.com/MarcusFelling/Demo.SpaceGame), now using containers and GitHub Actions 🚀!
 
 The Space Game website is a .NET 5 web app written in C# that's deployed to ☁️ Azure Web App for Containers and Azure SQL ☁️. The infrastructure is deployed using [Project Bicep](https://github.com/Azure/bicep) 💪, and the application is tested using Selenium for functional tests and JMeter for load tests.
 

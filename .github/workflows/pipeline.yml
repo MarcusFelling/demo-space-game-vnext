@@ -261,9 +261,9 @@ jobs:
         
     - name: Run load tests        
       uses: docker://justb4/jmeter:5.3 # Use container with JMeter installed for load tests
-      run: | 
-        cd LoadTests        
-        ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
+      with:
+        entrypoint: ${JMETER_HOME}/bin/./jmeter
+        args: -n -t LoadTests/LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
 
   deployProd:
     name: Deploy to Prod

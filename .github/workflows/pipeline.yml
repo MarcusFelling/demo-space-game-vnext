@@ -15,7 +15,7 @@ env:
 jobs:
   buildApp:
     name: Build - App
-    runs-on: ubuntu-latest  
+    runs-on: ubuntu-20.04  
     steps:
     - uses: actions/checkout@master
 
@@ -84,7 +84,7 @@ jobs:
 
   buildIaC:
     name: Build - Infrastructure
-    runs-on: ubuntu-latest  
+    runs-on: ubuntu-20.04  
     steps:
     - uses: actions/checkout@master
     - name: Bicep build
@@ -97,7 +97,7 @@ jobs:
     env:
       ENVIRONMENTNAME: dev
     needs: [buildApp, buildDatabase, buildIaC]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@master
 
@@ -185,7 +185,7 @@ jobs:
     env:
       ENVIRONMENTNAME: dev
     needs: [deployDevDB]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@master
 
@@ -228,7 +228,7 @@ jobs:
 
   deployTestInfra:
     name: Deploy Test Infra
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     environment: test
     env:
       ENVIRONMENTNAME: test
@@ -292,7 +292,7 @@ jobs:
 
   deployTestApp:
     name: Deploy Test App
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     environment: test
     env:
       ENVIRONMENTNAME: test
@@ -335,7 +335,8 @@ jobs:
 
   testLoad:
     name: Run load tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+    container: justb4/jmeter:5.3
     environment: test
     env:
       ENVIRONMENTNAME: test
@@ -345,14 +346,12 @@ jobs:
     - uses: actions/checkout@master
     - name: Run load tests
       run: | 
-        cd LoadTests
-        wget -c ftp.ps.pl/pub/apache/jmeter/binaries/apache-jmeter-5.4.tgz
-        tar -zxvf apache-jmeter-5.4.tgz         
-        apache-jmeter-5.4/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
+        cd LoadTests        
+        ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
 
   deployProdInfra:
     name: Deploy Prod Infra
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     environment: prod
     env:
       ENVIRONMENTNAME: prod
@@ -416,7 +415,7 @@ jobs:
 
   deployProdApp:
     name: Deploy Prod App
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     environment: prod
     env:
       ENVIRONMENTNAME: prod

@@ -89,7 +89,7 @@ jobs:
       run: | 
         az bicep build --files IaC/main.bicep    
 
-  deployDevInfra:
+  deployDev:
     name: Deploy Dev Infra
     environment: dev
     env:
@@ -152,38 +152,14 @@ jobs:
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'
 
-  deployDevDB:
-    name: Deploy Dev DB
-    environment: dev
-    env:
-      ENVIRONMENTNAME: dev
-    needs: [deployDevInfra]
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@master
     - uses: actions/download-artifact@v2
       with:
         name: dacpac
 
-    - name: Azure SQL Deploy
+    - name: Deploy Database
       uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
       with:
-        args: /SourceFile:"Database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ env.DEVENV }}"
-
-  deployDevApp:
-    name: Deploy Dev App
-    environment: dev
-    env:
-      ENVIRONMENTNAME: dev
-    needs: [deployDevDB]
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@master
-
-    - name: Azure authentication
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        args: /SourceFile:"Database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
 
     - name: Extract branch name to append to app name
       run: |
@@ -217,7 +193,7 @@ jobs:
             body: comment
           })
 
-  deployTestInfra:
+  deployTest:
     name: Deploy Test Infra
     runs-on: ubuntu-20.04
     environment: test
@@ -255,42 +231,14 @@ jobs:
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'
 
-  deployTestDB:
-    name: Deploy Test DB
-    runs-on: windows-latest
-    environment: test
-    env:
-      ENVIRONMENTNAME: test
-      DEVENV: false
-    needs: [deployTestInfra]
-    steps:
-    - uses: actions/checkout@master
     - uses: actions/download-artifact@v2
       with:
         name: dacpac
 
-    - name: Azure SQL Deploy
-      uses: Azure/sql-action@v1
+    - name: Deploy Database
+      uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
       with:
-        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net'
-        connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_TEST }}
-        dacpac-package: Database.dacpac
-
-  deployTestApp:
-    name: Deploy Test App
-    runs-on: ubuntu-20.04
-    environment: test
-    env:
-      ENVIRONMENTNAME: test
-      DEVENV: false
-    needs: [deployTestDB]
-    steps:
-    - uses: actions/checkout@master
-
-    - name: Azure authentication
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        args: /SourceFile:"Database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
 
     - name: Get ACR credentials
       id: getACRCred
@@ -312,7 +260,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
-    needs: [deployTestApp]
+    needs: [deployTest]
     steps:
     - uses: actions/checkout@master
     - name: Run functional tests
@@ -335,7 +283,7 @@ jobs:
         cd LoadTests        
         ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
 
-  deployProdInfra:
+  deployProd:
     name: Deploy Prod Infra
     runs-on: ubuntu-20.04
     environment: prod
@@ -373,40 +321,14 @@ jobs:
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'         
 
-  deployProdDB:
-    name: Deploy Prod DB
-    runs-on: windows-latest
-    env:
-      ENVIRONMENTNAME: prod
-      DEVENV: false
-    needs: deployProdInfra
-    steps:
-    - uses: actions/checkout@master
     - uses: actions/download-artifact@v2
       with:
         name: dacpac
 
-    - name: Azure SQL Deploy
-      uses: Azure/sql-action@v1
+    - name: Deploy Database
+      uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
       with:
-        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net'
-        connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_PROD }}
-        dacpac-package: Database.dacpac     
-
-  deployProdApp:
-    name: Deploy Prod App
-    runs-on: ubuntu-20.04
-    env:
-      ENVIRONMENTNAME: prod
-      DEVENV: false
-    needs: deployProdDB
-    steps:
-    - uses: actions/checkout@master
-        
-    - name: Azure authentication
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        args: /SourceFile:"Database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
 
     - name: Get ACR credentials
       id: getACRCred

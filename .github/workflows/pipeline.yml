@@ -201,7 +201,7 @@ jobs:
       ENVIRONMENTNAME: test
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
       DEVENV: false
-    needs: [buildApp, buildDatabase, buildIaC]
+    needs: [deployDev]
     steps:
     - uses: actions/checkout@master
 

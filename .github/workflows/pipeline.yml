@@ -255,7 +255,7 @@ jobs:
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }} 
 
     - name: Run functional tests
-      uses: docker:mcr.microsoft.com/dotnet/runtime:5.0-windowsservercore-ltsc2019 # Use server core container for Selenium tests
+      uses: docker://mcr.microsoft.com/dotnet/runtime:5.0-windowsservercore-ltsc2019 # Use server core container for Selenium tests
       with:
         args: test FunctionalTests/FunctionalTests.csproj
         

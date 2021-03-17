@@ -14,7 +14,7 @@ The Space Game website is a .NET 5 web app written in C# that's deployed to ‚òÅÔ
 ![environment](https://user-images.githubusercontent.com/6855361/111533320-a61e8800-8734-11eb-93d4-b2f4883313b3.PNG)
 5. Meanwhile, the pipeline will execute functional and load tests in a testing environment.
 6. If all tests are successful, the pipeline will wait for manual approval before deploying to production.
-7. After the PR is merged, a final [workflow](https://github.com/MarcusFelling/Demo.SpaceGamevNext/actions/workflows/cleanup.yml) will run to clean up the development environment.
+7. After the PR is merged, a final [workflow](https://github.com/MarcusFelling/Demo.SpaceGamevNext/actions/runs/662366419/workflow) will run to clean up the development environment.
 
 ![pipeline](https://user-images.githubusercontent.com/6855361/111533722-1cbb8580-8735-11eb-95e7-df517da9a9cc.PNG)
 

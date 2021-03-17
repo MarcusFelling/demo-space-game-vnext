@@ -254,16 +254,35 @@ jobs:
         app-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}'
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }} 
 
+  testFunctional:
+    name: Run functional tests
+    runs-on: windows-latest
+    environment: test
+    env:
+      ENVIRONMENTNAME: test
+      SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
+    needs: [deployTest]
+    steps:
+    - uses: actions/checkout@master
     - name: Run functional tests
-      uses: docker://mcr.microsoft.com/dotnet/runtime:5.0-windowsservercore-ltsc2019 # Use server core container for Selenium tests
-      with:
-        args: test FunctionalTests/FunctionalTests.csproj
-        
-    - name: Run load tests        
-      uses: docker://justb4/jmeter:5.3 # Use container with JMeter installed for load tests
-      with:
-        entrypoint: ${JMETER_HOME}/bin/./jmeter
-        args: -n -t LoadTests/LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
+      continue-on-error: false
+      run: dotnet test FunctionalTests/FunctionalTests.csproj
+
+  testLoad:
+    name: Run load tests
+    runs-on: ubuntu-20.04
+    container: justb4/jmeter:5.3
+    environment: test
+    env:
+      ENVIRONMENTNAME: test
+      SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
+    needs: deployTest
+    steps:
+    - uses: actions/checkout@master
+    - name: Run load tests
+      run: | 
+        cd LoadTests        
+        ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
 
   deployProd:
     name: Deploy to Prod
@@ -272,7 +291,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: [deployTest]
+    needs: [testLoad, testFunctional]
     steps:
     - uses: actions/checkout@master
         

@@ -1,5 +1,5 @@
 name: pipeline
-on: [workflow_dispatch] # Can be manually triggered, also triggered via Main branch protection rule (PR's)
+on: [push, workflow_dispatch] # Can be manually triggered, also triggered via Main branch protection rule (PR's)
 env:
   APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
   REGISTRYSKU: 'Standard'

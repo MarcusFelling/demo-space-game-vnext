@@ -121,6 +121,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
+                       imageName='${{ env.APPNAME }}' \
                        appServiceName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
@@ -143,6 +144,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
+                       imageName='${{ env.APPNAME }}' \
                        appServiceName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
@@ -206,6 +208,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
+                       imageName='${{ env.APPNAME }}' \
                        appServiceName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
@@ -299,6 +302,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
+                       imageName='${{ env.APPNAME }}' \
                        appServiceName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \

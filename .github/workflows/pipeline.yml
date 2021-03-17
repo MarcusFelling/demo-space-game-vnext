@@ -241,7 +241,7 @@ jobs:
 
     - name: Swap slots for no downtime deploy
       run: |
-        az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n ${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' --slot 'swap' --target-slot 'production'
+        az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' --slot 'swap' --target-slot 'production'
 
   testFunctional:
     name: Run functional tests
@@ -339,4 +339,4 @@ jobs:
 
     - name: Swap slots for no downtime deploy
       run: |
-        az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n ${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'      
+        az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'      

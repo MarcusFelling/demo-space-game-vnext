@@ -248,7 +248,7 @@ jobs:
       with: 
         app-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}'
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }} 
- 
+
   testFunctional:
     name: Run functional tests
     runs-on: windows-latest

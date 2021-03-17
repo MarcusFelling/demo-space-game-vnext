@@ -122,7 +122,6 @@ jobs:
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.APPNAME }}' \
-                       appServiceName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
@@ -145,7 +144,6 @@ jobs:
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.APPNAME }}' \
-                       appServiceName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
@@ -209,7 +207,6 @@ jobs:
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.APPNAME }}' \
-                       appServiceName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
@@ -235,11 +232,16 @@ jobs:
            echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
            echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
 
-    - name: 'Deploy to Azure Web App for Containers'
+    - name: 'Deploy to Azure Web App for Containers slot'
       uses: azure/webapps-deploy@v2
       with: 
         app-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}'
+        slot-name: 'swap'
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }} 
+
+    - name: Swap slots for no downtime deploy
+      run: |
+        az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n ${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' --slot 'swap' --target-slot 'production'
 
   testFunctional:
     name: Run functional tests
@@ -303,7 +305,6 @@ jobs:
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.APPNAME }}' \
-                       appServiceName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
@@ -329,8 +330,13 @@ jobs:
            echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
            echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
 
-    - name: 'Deploy to Azure Web App for Containers'
+    - name: 'Deploy to Azure Web App for Containers slot'
       uses: azure/webapps-deploy@v2
       with: 
         app-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}'
-        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}         
+        slot-name: 'swap'
+        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }} 
+
+    - name: Swap slots for no downtime deploy
+      run: |
+        az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n ${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'      

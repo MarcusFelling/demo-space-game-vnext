@@ -1,6 +1,5 @@
 name: pipeline
 on: [push, workflow_dispatch]
- # environments: https://github.com/mickeygousset/youtube-demos/blob/main/.github/workflows/simple-manual-workflow-three-env.yml
 env:
   APPNAME: spacegamevnext
   REGISTRYSKU: 'Standard'
@@ -10,7 +9,6 @@ env:
   SKU: 'S1'
   DEVENV: true
   BUILDCONFIGURATION: Release
-  DOTNETSDKVERSION: 5.0.103
 
 jobs:
   buildApp:

@@ -1,14 +1,11 @@
 name: pipeline
-on: [push, workflow_dispatch]
+on: [push, workflow_dispatch] # Can be manually triggered, also triggered via Main branch protection rule (PR's)
 env:
-  APPNAME: spacegamevnext
+  APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
   REGISTRYSKU: 'Standard'
-  REGISTRYNAME: 'marcusfellingspacegamevnextacr'
-  IMAGENAME: 'spacegamevnext'
-  LOCATION: 'WestUS'
-  SKU: 'S1'
-  DEVENV: true
-  BUILDCONFIGURATION: Release
+  REGISTRYNAME: 'marcusfellingspacegamevnextacr' # Registry that is shared across environments
+  LOCATION: 'WestUS' # Region for all Azure resources
+  SKU: 'S1' # Default Sku for app services
 
 jobs:
   buildApp:
@@ -26,8 +23,8 @@ jobs:
       run: | 
             dotnet restore WebApp/WebApp.csproj
             dotnet restore UnitTests/UnitTests.csproj
-            dotnet build WebApp/WebApp.csproj --configuration ${{ env.BUILDCONFIGURATION }}
-            dotnet build UnitTests/UnitTests.csproj --configuration ${{ env.BUILDCONFIGURATION }}
+            dotnet build WebApp/WebApp.csproj --configuration Release
+            dotnet build UnitTests/UnitTests.csproj --configuration Release
             dotnet test UnitTests/UnitTests.csproj --verbosity normal
 
     - name: Create Azure container registry using Bicep
@@ -36,7 +33,7 @@ jobs:
           --resource-group '${{ env.APPNAME }}-ACR-rg' \
           --template-file IaC/registry.bicep \
           --parameters registry='${{ env.REGISTRYNAME }}' \
-                       registrySku='${{ env. REGISTRYSKU }}'        
+                       registrySku='${{ env.REGISTRYSKU }}'        
 
     - name: Fetch ACR credentials
       id: acrCredentials
@@ -56,8 +53,8 @@ jobs:
     - name: Docker Build & Push to ACR
       run: |
         docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
-        docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }} 
-        docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}   
+        docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }} 
+        docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}   
 
   buildDatabase:
     name: Build - Database
@@ -85,15 +82,18 @@ jobs:
     runs-on: ubuntu-20.04  
     steps:
     - uses: actions/checkout@master
-    - name: Bicep build
+    - name: Run Bicep build to ensure transpilation is successful before deployment
       run: | 
         az bicep build --files IaC/main.bicep    
 
-  deployDevInfra:
-    name: Deploy Dev Infra
-    environment: dev
+  deployDev:
+    name: Deploy to Dev
+    environment: 
+      name: dev
+      url: https://${{ env.APPNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: dev
+      DEVENV: true
     needs: [buildApp, buildDatabase, buildIaC]
     runs-on: ubuntu-20.04
     steps:
@@ -121,7 +121,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       imageName='${{ env.IMAGENAME }}' \
+                       imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
@@ -143,7 +143,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       imageName='${{ env.IMAGENAME }}' \
+                       imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
@@ -152,49 +152,15 @@ jobs:
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'
 
-  deployDevDB:
-    name: Deploy Dev DB
-    environment: dev
-    env:
-      ENVIRONMENTNAME: dev
-    needs: [deployDevInfra]
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@master
     - uses: actions/download-artifact@v2
+      name: download dacpac from build
       with:
         name: dacpac
 
-    - name: Azure authentication
-      uses: azure/login@v1
+    - name: Deploy Database using dacpac
+      uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Azure SQL Deploy
-      uses: Azure/sql-action@v1
-      with:
-        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net'
-        connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_DEV }}
-        dacpac-package: Database.dacpac
-
-  deployDevApp:
-    name: Deploy Dev App
-    environment: dev
-    env:
-      ENVIRONMENTNAME: dev
-    needs: [deployDevDB]
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@master
-
-    - name: Azure authentication
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Extract branch name to append to app name
-      run: |
-          echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV
+        args: /SourceFile:"Database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
 
     - name: Get ACR credentials
       id: getACRCred
@@ -207,31 +173,18 @@ jobs:
       uses: azure/webapps-deploy@v2
       with: 
         app-name: '${{ env.APPNAME }}-${{ env.BRANCH_NAME }}'
-        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
 
-    - name: Add PR comment with site url
-      uses: actions/github-script@0.9.0
-      if: github.event_name == 'pull_request'
-      with:
-        github-token: ${{ secrets.GHTOKEN }}
-        script: |
-          const comment = `Your changes are ready for testing: https://${{ env.APPNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net`;
-
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          })
-
-  deployTestInfra:
-    name: Deploy Test Infra
+  deployTest:
+    name: Deploy to Test
     runs-on: ubuntu-20.04
-    environment: test
+    environment: 
+      name: test
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
       DEVENV: false
-    needs: [buildApp, buildDatabase, buildIaC]
+    needs: [deployDev]
     steps:
     - uses: actions/checkout@master
 
@@ -253,7 +206,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       imageName='${{ env.IMAGENAME }}' \
+                       imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
@@ -262,47 +215,15 @@ jobs:
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'
 
-  deployTestDB:
-    name: Deploy Test DB
-    runs-on: windows-latest
-    environment: test
-    env:
-      ENVIRONMENTNAME: test
-      DEVENV: false
-    needs: [deployTestInfra]
-    steps:
-    - uses: actions/checkout@master
     - uses: actions/download-artifact@v2
+      name: Download dacpac from build
       with:
         name: dacpac
 
-    - name: Azure authentication
-      uses: azure/login@v1
+    - name: Deploy Database using dacpac
+      uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Azure SQL Deploy
-      uses: Azure/sql-action@v1
-      with:
-        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net'
-        connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_TEST }}
-        dacpac-package: Database.dacpac
-
-  deployTestApp:
-    name: Deploy Test App
-    runs-on: ubuntu-20.04
-    environment: test
-    env:
-      ENVIRONMENTNAME: test
-      DEVENV: false
-    needs: [deployTestDB]
-    steps:
-    - uses: actions/checkout@master
-
-    - name: Azure authentication
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        args: /SourceFile:"Database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
 
     - name: Get ACR credentials
       id: getACRCred
@@ -311,11 +232,16 @@ jobs:
            echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
            echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
 
-    - name: 'Deploy to Azure Web App for Containers'
+    - name: 'Deploy to Azure Web App for Containers slot'
       uses: azure/webapps-deploy@v2
       with: 
         app-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}'
-        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }} 
+        slot-name: 'swap'
+        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }} 
+
+    - name: Swap slots for no downtime deploy
+      run: |
+        az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'
 
   testFunctional:
     name: Run functional tests
@@ -324,7 +250,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
-    needs: [deployTestApp]
+    needs: [deployTest]
     steps:
     - uses: actions/checkout@master
     - name: Run functional tests
@@ -339,7 +265,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
-    needs: deployTestApp
+    needs: deployTest
     steps:
     - uses: actions/checkout@master
     - name: Run load tests
@@ -347,10 +273,12 @@ jobs:
         cd LoadTests        
         ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
 
-  deployProdInfra:
-    name: Deploy Prod Infra
+  deployProd:
+    name: Deploy to Prod
     runs-on: ubuntu-20.04
-    environment: prod
+    environment: 
+      name: prod
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
@@ -376,7 +304,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       imageName='${{ env.IMAGENAME }}' \
+                       imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
@@ -385,45 +313,15 @@ jobs:
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'         
 
-  deployProdDB:
-    name: Deploy Prod DB
-    runs-on: windows-latest
-    env:
-      ENVIRONMENTNAME: prod
-      DEVENV: false
-    needs: deployProdInfra
-    steps:
-    - uses: actions/checkout@master
     - uses: actions/download-artifact@v2
+      name: Download dacpac from build
       with:
         name: dacpac
-        
-    - name: Azure authentication
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Azure SQL Deploy
-      uses: Azure/sql-action@v1
+    - name: Deploy Database using dacpac
+      uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
       with:
-        server-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net'
-        connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING_PROD }}
-        dacpac-package: Database.dacpac     
-
-  deployProdApp:
-    name: Deploy Prod App
-    runs-on: ubuntu-20.04
-    env:
-      ENVIRONMENTNAME: prod
-      DEVENV: false
-    needs: deployProdDB
-    steps:
-    - uses: actions/checkout@master
-        
-    - name: Azure authentication
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        args: /SourceFile:"Database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
 
     - name: Get ACR credentials
       id: getACRCred
@@ -432,8 +330,13 @@ jobs:
            echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
            echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
 
-    - name: 'Deploy to Azure Web App for Containers'
+    - name: 'Deploy to Azure Web App for Containers slot'
       uses: azure/webapps-deploy@v2
       with: 
         app-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}'
-        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}         
+        slot-name: 'swap'
+        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }} 
+
+    - name: Swap slots for no downtime deploy
+      run: |
+        az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'      

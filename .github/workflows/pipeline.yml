@@ -121,7 +121,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       appNameE='${{ env.APPNAME }}' \
+                       appName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
@@ -143,7 +143,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       appNameE='${{ env.APPNAME }}' \
+                       appName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
@@ -206,7 +206,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       appNameE='${{ env.APPNAME }}' \
+                       appName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
@@ -299,7 +299,7 @@ jobs:
                        servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       appNameE='${{ env.APPNAME }}' \
+                       appName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \

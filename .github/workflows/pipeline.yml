@@ -5,7 +5,7 @@ env:
   REGISTRYSKU: 'Standard'
   REGISTRYNAME: 'marcusfellingspacegamevnextacr' # Registry that is shared across environments
   LOCATION: 'WestUS' # Region for all Azure resources
-  SKU: 'S1' # Default Sku for app services
+  SKU: 'S2' # Default Sku for app services
 
 jobs:
   buildApp:

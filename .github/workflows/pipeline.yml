@@ -232,10 +232,10 @@ jobs:
     runs-on: windows-latest
     environment: 
       name: test
-      url: ${{ jobs.deployTest.environment.environment_url }}
+      url: ${{ github.job.deployTest.environment.environment_url }}
     env:
       ENVIRONMENTNAME: test
-      SITE_URL: ${{ jobs.deployTest.environment.environment_url }} # Referenced by Selenium test
+      SITE_URL: ${{ github.job.deployTest.environment.environment_url }} # Referenced by Selenium test
     needs: [deployTest]
     steps:
     - uses: actions/checkout@master
@@ -249,7 +249,7 @@ jobs:
     container: justb4/jmeter:5.3
     environment: 
       name: test
-      url: ${{ jobs.deployTest.environment.environment_url }}
+      url: ${{ github.job.deployTest.environment.environment_url }}
     env:
       ENVIRONMENTNAME: test
     needs: deployTest
@@ -258,7 +258,7 @@ jobs:
     - name: Run load tests
       run: | 
         cd LoadTests        
-        ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ jobs.deployTest.environment.environment_url }}
+        ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ github.job.deployTest.environment.environment_url }}
 
   deployProd:
     name: Deploy to Prod

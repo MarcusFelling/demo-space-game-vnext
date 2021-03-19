@@ -84,7 +84,7 @@ resource deploySlot 'Microsoft.Web/sites/slots@2020-06-01' = if(devEnv == 'false
 
 // Monitor
 resource appInsights 'Microsoft.Insights/components@2018-05-01-preview' = {
-  name: 'AppInsights${appService.name}'
+  name: '${appService.name}-monitor'
   location: resourceGroup().location
   tags: {
     'hidden-link:${appService.id}': 'Resource'

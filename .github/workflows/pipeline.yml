@@ -116,7 +116,7 @@ jobs:
           --template-file IaC/main.bicep \
           --parameters appName='${{ env.APPNAME }}' \
                        environmentName=${{ env.ENVIRONMENTNAME }} \
-                       branchName='-${{ env.BRANCH_NAME }}'
+                       branchName='-${{ env.BRANCH_NAME }}' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.APPNAME }}' \
@@ -134,7 +134,7 @@ jobs:
           --template-file IaC/main.bicep \
           --parameters appName='${{ env.APPNAME }}' \
                        environmentName=${{ env.ENVIRONMENTNAME }} \
-                       branchName='-${{ env.BRANCH_NAME }}'
+                       branchName='-${{ env.BRANCH_NAME }}' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.APPNAME }}' \

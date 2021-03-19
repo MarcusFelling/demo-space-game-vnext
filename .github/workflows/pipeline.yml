@@ -232,9 +232,9 @@ jobs:
     runs-on: windows-latest
     environment: 
       name: test
-      url: ${{ github.job.deployTest.environment.environment_url }}
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
-      SITE_URL: ${{ github.job.deployTest.environment.environment_url }} # Referenced by Selenium test
+      SITE_URL: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net # Referenced by Selenium test
     needs: [deployTest]
     steps:
     - uses: actions/checkout@master
@@ -248,14 +248,16 @@ jobs:
     container: justb4/jmeter:5.3 # Use container with JMeter installed
     environment: 
       name: test
-      url: ${{ github.job.deployTest.environment.environment_url }}
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+    env:
+      SITE_URL: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net # Used by JMeter tests
     needs: deployTest
     steps:
     - uses: actions/checkout@master
     - name: Run load tests
       run: | 
         cd LoadTests        
-        ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ github.job.deployTest.environment.environment_url }}
+        ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
 
   deployProd:
     name: Deploy to Prod

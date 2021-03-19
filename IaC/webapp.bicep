@@ -1,9 +1,7 @@
 // Web App
-param servicePlanName string
-param appServiceName string
+param environmentName string
+param appName string
 param appSku string = 'S1'
-param startupCommand string = ''
-param acrResourceGroupName string
 param registry string
 param imageName string
 param tag string
@@ -16,7 +14,7 @@ param devEnv string // Used in condition for deployment slots
 
 resource servicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   kind: 'linux'
-  name: servicePlanName
+  name: '${appName}-${environmentName}-plan'
   location: resourceGroup().location
   sku: {
     name: appSku
@@ -30,11 +28,11 @@ resource servicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
 // This resource will not be deployed by this file, but the declaration provides access to properties on the existing resource.
 resource acr 'Microsoft.ContainerRegistry/registries@2020-11-01-preview' existing = {
   name: registry
-  scope: resourceGroup(acrResourceGroupName)
+  scope: resourceGroup('${appName}-ACR-rg')
 }
 
 resource appService 'Microsoft.Web/sites@2020-06-01' = {
-  name: appServiceName
+  name: appName
   location: resourceGroup().location
   properties: {
     siteConfig: {
@@ -56,7 +54,6 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
           value: 'false'
         }
       ]
-      appCommandLine: startupCommand
       linuxFxVersion: 'DOCKER|${acr.properties.loginServer}/${imageName}:${tag}'
     }
     serverFarmId: '${servicePlan.id}'    

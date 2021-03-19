@@ -1,18 +1,13 @@
 // Creates all infrastructure for Space Game
 targetScope = 'subscription' // switch to sub scope to create resource group
+
+param appName string // Used as base name of resources
 param environmentName string
-param resourceGroupName string
-param acrResourceGroupName string
-param appServiceName string
-param servicePlanName string
 param appSku string
 param registryName string
 param imageName string
 param tag string
 param registrySku string
-param startupCommand string = ''
-param sqlServerName string
-param dbName string
 param dbUserName string
 @secure()
 param dbPassword string
@@ -20,19 +15,19 @@ param devEnv string // Used for conditionals on features like deployment slots
 
 // Create resource group for webapp and db
 resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
-  name: resourceGroupName
+  name: '${appName}-${environmentName}-rg'
   location: deployment().location
 }
 
 // Create resource group for ACR
 resource acrrg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
-  name: acrResourceGroupName
+  name: '${appName}-ACR-rg'
   location: deployment().location
 }
 
 // Create registry
 module registry 'registry.bicep' = {
-  name: 'spacegame-registry-${environmentName}-${uniqueString(acrrg.name)}'
+  name: '${appName}-registry-${environmentName}-${uniqueString(acrrg.name)}'
   scope: acrrg
   params:{
     registry: registryName
@@ -42,11 +37,11 @@ module registry 'registry.bicep' = {
 
 // Create database infrastructure
 module db 'db.bicep' = {
-  name: 'spacegame-db-${environmentName}-${uniqueString(rg.name)}'
+  name: '${appName}-db-${environmentName}-${uniqueString(rg.name)}'
   scope: rg
   params:{
-    sqlServerName: sqlServerName
-    dbName: dbName   
+    sqlServerName: '${appName}-${environmentName}-sql'
+    dbName: '${appName}database'   
     dbUserName: dbUserName
     dbPassword: dbPassword         
   }
@@ -54,20 +49,20 @@ module db 'db.bicep' = {
 
 // Create web app infrastructure
 module webapp 'webapp.bicep' = {
-  name: 'spacegame-webapp-${environmentName}-${uniqueString(rg.name)}'
+  name: '${appName}-webapp-${environmentName}-${uniqueString(rg.name)}'
   scope: rg
   params:{
-    servicePlanName: servicePlanName
-    appServiceName: appServiceName
+    environmentName: environmentName
+    appName: appName
     appSku: appSku
-    acrResourceGroupName: acrrg.name
     registry: registry.outputs.acrName
     imageName: imageName
     tag: tag
-    sqlServer: db.outputs.sqlServerFQDN // Use output from db module to set connection string
-    dbName: dbName // Used for connection string
-    dbUserName: dbUserName // Used for connection string
-    dbPassword: dbPassword // Used for connection string
+    // Use output from db module to set connection string
+    sqlServer: db.outputs.sqlServerFQDN
+    dbName: db.outputs.databaseName 
+    dbUserName: db.outputs.userName 
+    dbPassword: db.outputs.password 
     devEnv: devEnv
     }
 }    

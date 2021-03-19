@@ -114,18 +114,13 @@ jobs:
           --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
-          --parameters environmentName=${{ env.ENVIRONMENTNAME }} \
-                       resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
-                       acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
-                       appServiceName='${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' \
-                       servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
+          --parameters appName='${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' \
+                       environmentName=${{ env.ENVIRONMENTNAME }} \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
-                       sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
-                       dbName='${{ env.APPNAME }}database' \
                        dbUserName='${{ secrets.DBUSERNAME }}' \
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'
@@ -136,18 +131,13 @@ jobs:
           --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
-          --parameters environmentName=${{ env.ENVIRONMENTNAME }} \
-                       resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
-                       acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
-                       appServiceName='${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' \
-                       servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
+          --parameters appName='${{ env.APPNAME }}-${{ env.BRANCH_NAME }}' \
+                       environmentName=${{ env.ENVIRONMENTNAME }} \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
-                       sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
-                       dbName='${{ env.APPNAME }}database' \
                        dbUserName='${{ secrets.DBUSERNAME }}' \
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'
@@ -199,18 +189,13 @@ jobs:
           --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
-          --parameters environmentName=${{ env.ENVIRONMENTNAME }} \
-                       resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
-                       acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
-                       appServiceName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' \
-                       servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
+          --parameters appName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' \
+                       environmentName=${{ env.ENVIRONMENTNAME }} \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
-                       sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
-                       dbName='${{ env.APPNAME }}database' \
                        dbUserName='${{ secrets.DBUSERNAME }}' \
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'
@@ -297,21 +282,16 @@ jobs:
           --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
-          --parameters environmentName=${{ env.ENVIRONMENTNAME }} \
-                       resourceGroupName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' \
-                       acrResourceGroupName='${{ env.APPNAME }}-ACR-rg' \
-                       appServiceName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' \
-                       servicePlanName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-plan' \
+          --parameters appName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' \
+                       environmentName=${{ env.ENVIRONMENTNAME }} \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
                        imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
-                       sqlServerName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql' \
-                       dbName='${{ env.APPNAME }}database' \
                        dbUserName='${{ secrets.DBUSERNAME }}' \
                        dbPassword='${{ secrets.DBPASSWORD }}' \
-                       devEnv='${{ env.DEVENV }}'         
+                       devEnv='${{ env.DEVENV }}'     
 
     - uses: actions/download-artifact@v2
       name: Download dacpac from build

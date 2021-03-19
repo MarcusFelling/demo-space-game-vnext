@@ -3,6 +3,7 @@ targetScope = 'subscription' // switch to sub scope to create resource group
 
 param appName string // Used as base name of resources
 param environmentName string
+param branchName string = ''
 param appSku string
 param registryName string
 param imageName string
@@ -53,7 +54,7 @@ module webapp 'webapp.bicep' = {
   scope: rg
   params:{
     environmentName: environmentName
-    appName: appName
+    appName: '${appName}${branchName}'
     appSku: appSku
     registry: registry.outputs.acrName
     imageName: imageName

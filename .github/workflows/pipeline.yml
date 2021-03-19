@@ -119,7 +119,6 @@ jobs:
                        branchName='-${{ env.BRANCH_NAME }}' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        dbUserName='${{ secrets.DBUSERNAME }}' \
@@ -137,7 +136,6 @@ jobs:
                        branchName='-${{ env.BRANCH_NAME }}' \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        dbUserName='${{ secrets.DBUSERNAME }}' \
@@ -195,7 +193,6 @@ jobs:
                        environmentName=${{ env.ENVIRONMENTNAME }} \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        dbUserName='${{ secrets.DBUSERNAME }}' \
@@ -233,7 +230,9 @@ jobs:
   testFunctional:
     name: Run functional tests
     runs-on: windows-latest
-    environment: test
+    environment: 
+      name: test
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
@@ -248,7 +247,9 @@ jobs:
     name: Run load tests
     runs-on: ubuntu-20.04
     container: justb4/jmeter:5.3
-    environment: test
+    environment: 
+      name: test
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
       SITE_URL: 'https://spacegamevnext-test.azurewebsites.net'
@@ -288,7 +289,6 @@ jobs:
                        environmentName=${{ env.ENVIRONMENTNAME }} \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
-                       imageName='${{ env.APPNAME }}' \
                        tag='${{ github.sha }}' \
                        registrySku='${{ env.REGISTRYSKU }}' \
                        dbUserName='${{ secrets.DBUSERNAME }}' \

@@ -234,7 +234,6 @@ jobs:
       name: test
       url: ${{ github.job.deployTest.environment.environment_url }}
     env:
-      ENVIRONMENTNAME: test
       SITE_URL: ${{ github.job.deployTest.environment.environment_url }} # Referenced by Selenium test
     needs: [deployTest]
     steps:
@@ -250,8 +249,6 @@ jobs:
     environment: 
       name: test
       url: ${{ github.job.deployTest.environment.environment_url }}
-    env:
-      ENVIRONMENTNAME: test
     needs: deployTest
     steps:
     - uses: actions/checkout@master

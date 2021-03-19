@@ -191,7 +191,7 @@ jobs:
           --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
-          --parameters appName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' \
+          --parameters appName='${{ env.APPNAME }}' \
                        environmentName=${{ env.ENVIRONMENTNAME }} \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \
@@ -284,7 +284,7 @@ jobs:
           --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
           --location '${{ env.LOCATION }}' \
           --template-file IaC/main.bicep \
-          --parameters appName='${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' \
+          --parameters appName='${{ env.APPNAME }}' \
                        environmentName=${{ env.ENVIRONMENTNAME }} \
                        appSku='${{ env.SKU }}' \
                        registryName='${{ env.REGISTRYNAME }}' \

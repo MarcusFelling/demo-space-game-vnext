@@ -1,5 +1,5 @@
 name: pipeline
-on: [workflow_dispatch, pull_request] # Can be manually triggered OR via PR
+on: [workflow_dispatch, push]
 env:
   APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
   REGISTRYSKU: 'Standard'
@@ -245,7 +245,7 @@ jobs:
   testLoad:
     name: Run load tests
     runs-on: ubuntu-20.04
-    container: justb4/jmeter:5.3
+    container: justb4/jmeter:5.3 # Use container with JMeter installed
     environment: 
       name: test
       url: ${{ github.job.deployTest.environment.environment_url }}

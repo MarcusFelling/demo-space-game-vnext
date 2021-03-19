@@ -14,7 +14,7 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     - name: get source branch name for app
-      run: |
-          echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV        
+      run: | 
+          echo "BRANCH_NAME=$(echo ${{ github.event.pull_request.head.ref }} | sed 's/\//_/g')" >> $GITHUB_ENV        
     - name: Cleanup dev environment after PR is closed
       run: az webapp delete --name ${{ env.APPNAME }}-${{ env.BRANCH_NAME }} --resource-group ${{ env.APPNAME }}-dev-rg

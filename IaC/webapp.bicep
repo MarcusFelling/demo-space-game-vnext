@@ -1,6 +1,7 @@
 // Web App
 param environmentName string
 param appName string
+param branchName string = '' // only passed in for dev environment
 param appSku string = 'S1'
 param registry string
 param imageName string
@@ -32,7 +33,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2020-11-01-preview' existin
 }
 
 resource appService 'Microsoft.Web/sites@2020-06-01' = {
-  name: appName
+  name: '${appName}${branchName}'
   location: resourceGroup().location
   properties: {
     siteConfig: {

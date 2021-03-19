@@ -47,4 +47,3 @@ resource firewallAllowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRules@20
 output sqlServerFQDN string = sqlServer.properties.fullyQualifiedDomainName
 output databaseName string = database.name
 output userName string = sqlServer.properties.administratorLogin
-output password string = sqlServer.properties.administratorLoginPassword

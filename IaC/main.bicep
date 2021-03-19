@@ -63,7 +63,7 @@ module webapp 'webapp.bicep' = {
     sqlServer: db.outputs.sqlServerFQDN
     dbName: db.outputs.databaseName 
     dbUserName: db.outputs.userName 
-    dbPassword: db.outputs.password 
+    dbPassword: dbPassword
     devEnv: devEnv
     }
 }    

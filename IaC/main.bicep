@@ -6,7 +6,6 @@ param environmentName string
 param branchName string = '' // only passed in for dev environment
 param appSku string
 param registryName string
-param imageName string
 param tag string
 param registrySku string
 param dbUserName string
@@ -58,7 +57,6 @@ module webapp 'webapp.bicep' = {
     branchName: branchName
     appSku: appSku
     registry: registry.outputs.acrName
-    imageName: imageName
     tag: tag
     // Use output from db module to set connection string
     sqlServer: db.outputs.sqlServerFQDN

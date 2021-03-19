@@ -4,7 +4,6 @@ param appName string
 param branchName string = '' // only passed in for dev environment
 param appSku string = 'S1'
 param registry string
-param imageName string
 param tag string
 param sqlServer string
 param dbName string
@@ -55,7 +54,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
           value: 'false'
         }
       ]
-      linuxFxVersion: 'DOCKER|${acr.properties.loginServer}/${imageName}:${tag}'
+      linuxFxVersion: 'DOCKER|${acr.properties.loginServer}/${appName}:${tag}'
     }
     serverFarmId: '${servicePlan.id}'    
   }

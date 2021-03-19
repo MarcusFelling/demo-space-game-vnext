@@ -235,13 +235,14 @@ jobs:
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
-      SITE_URL: 'https://spacegamevnext-test.azurewebsites.net' # Referenced by Selenium test
     needs: [deployTest]
     steps:
     - uses: actions/checkout@master
     - name: Run functional tests
       continue-on-error: false
-      run: dotnet test FunctionalTests/FunctionalTests.csproj
+      run: |
+        export SITE_URL="https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net"
+        dotnet test FunctionalTests/FunctionalTests.csproj
 
   testLoad:
     name: Run load tests

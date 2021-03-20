@@ -241,7 +241,7 @@ jobs:
     - name: Run functional tests
       continue-on-error: false
       run: |
-        export SITE_URL="https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net"
+        set SITE_URL="https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net"
         dotnet test FunctionalTests/FunctionalTests.csproj
 
   testLoad:

@@ -235,13 +235,13 @@ jobs:
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
+      SITE_URL: https://spacegamevnext-test.azurewebsites.net // Selenium tests use this env var
     needs: [deployTest]
     steps:
     - uses: actions/checkout@master
     - name: Run functional tests
       continue-on-error: false
       run: |
-        echo "SITE_URL='https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net'" >> $GITHUB_ENV
         dotnet test FunctionalTests/FunctionalTests.csproj
 
   testLoad:
@@ -256,10 +256,21 @@ jobs:
     needs: deployTest
     steps:
     - uses: actions/checkout@master
+    
+    - name: Testspace Setup CLI
+      uses: testspace-com/setup-testspace@v1.0.4
+      with:
+        domain: ${{ github.repository_owner }}
+
     - name: Run load tests
       run: | 
         cd LoadTests        
         ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname='https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net'
+
+    - name: Publish Results to Testspace
+      run: |
+        testspace Results.xml
+      if: always()
 
   deployProd:
     name: Deploy to Prod

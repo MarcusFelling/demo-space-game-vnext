@@ -241,8 +241,7 @@ jobs:
     - name: Run functional tests
       continue-on-error: false
       run: |
-        SETLOCAL
-        SET SITE_URL='https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net'
+        echo "SITE_URL='https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net'" >> $GITHUB_ENV
         dotnet test FunctionalTests/FunctionalTests.csproj
 
   testLoad:

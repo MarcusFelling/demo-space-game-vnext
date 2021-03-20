@@ -32,7 +32,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2020-11-01-preview' existin
 }
 
 resource appService 'Microsoft.Web/sites@2020-06-01' = {
-  name: '${appName}${branchName}'
+  name: '${appName}-${environmentName}${branchName}'
   location: resourceGroup().location
   properties: {
     siteConfig: {

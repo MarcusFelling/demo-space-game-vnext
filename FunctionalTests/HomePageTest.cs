@@ -43,12 +43,8 @@ namespace UITests
                     case "Edge":
                         var options = new EdgeOptions();
                         options.UseChromium = true;
-                        options.BinaryLocation = "C:/Users/mafellin/Downloads/edgedriver_win64/msedgedriver.exe";
-
+                        options.BinaryLocation = Environment.GetEnvironmentVariable("EDGEWEBDRIVER");
                         driver = new EdgeDriver(options);
-
-                        //envWebDriver = Environment.GetEnvironmentVariable("EDGEWEBDRIVER");
-                        //driver = new EdgeDriver(envWebDriver);
                         break;
                     default:
                         throw new ArgumentException($"'{browser}': Unknown browser");

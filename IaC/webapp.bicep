@@ -58,26 +58,26 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
     }
     serverFarmId: '${servicePlan.id}'    
   }
-}
 
-resource connectionString 'Microsoft.Web/sites/config@2020-06-01' = {
-  name: '${appService.name}/connectionstrings'
-  properties: {
-    DefaultConnection: {
-      value: 'Data Source=tcp:${sqlServer},1433;Initial Catalog=${dbName};User Id=${dbUserName}@${sqlServer};Password=${dbPassword};'
-      type: 'SQLAzure'
+  resource connectionString 'config@2020-06-01' = {
+    name: 'connectionstrings'
+    properties: {
+      DefaultConnection: {
+        value: 'Data Source=tcp:${sqlServer},1433;Initial Catalog=${dbName};User Id=${dbUserName}@${sqlServer};Password=${dbPassword};'
+        type: 'SQLAzure'
+      }
     }
   }
-}
 
-// Create deployment slot if it's not a dev environment
-resource deploySlot 'Microsoft.Web/sites/slots@2020-06-01' = if(devEnv == 'false') {
-  name: '${appService.name}/swap'
-  location: resourceGroup().location
-  kind: 'linux'
-  properties: {
-    enabled: true
-    serverFarmId: '${servicePlan.id}'
+  // Create deployment slot if it's not a dev environment
+  resource deploySlot 'slots@2020-06-01' = if(devEnv == 'false') {
+    name: 'swap'
+    location: resourceGroup().location
+    kind: 'linux'
+    properties: {
+      enabled: true
+      serverFarmId: '${servicePlan.id}'
+    }
   }
 }
 

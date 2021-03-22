@@ -162,7 +162,7 @@ jobs:
     - name: 'Deploy to Azure Web App for Containers'
       uses: azure/webapps-deploy@v2
       with: 
-        app-name: '${{ env.APPNAME }}-${{ env.BRANCH_NAME }}'
+        app-name: '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.BRANCH_NAME }}'
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
 
   deployTest:

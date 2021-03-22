@@ -2,16 +2,15 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
-using OpenQA.Selenium.IE;
+using Microsoft.Edge.SeleniumTools;
 using OpenQA.Selenium.Support.UI;
 using System;
-using System.Collections;
 
 namespace UITests
 {
     [TestFixture("Chrome")]
     [TestFixture("Firefox")]
-    [TestFixture("IE")]
+    [TestFixture("Edge")]
     public class HomePageTest
     {
         private string browser;
@@ -41,9 +40,11 @@ namespace UITests
                         envWebDriver = Environment.GetEnvironmentVariable("GECKOWEBDRIVER");
                         driver = new FirefoxDriver(envWebDriver);
                         break;
-                    case "IE":
-                        envWebDriver = Environment.GetEnvironmentVariable("EDGEWEBDRIVER");
-                        driver = new InternetExplorerDriver(envWebDriver);
+                    case "Edge":
+                        var options = new EdgeOptions();
+                        options.UseChromium = true;
+                        options.BinaryLocation = Environment.GetEnvironmentVariable("EDGEWEBDRIVER");
+                        driver = new EdgeDriver(options);
                         break;
                     default:
                         throw new ArgumentException($"'{browser}': Unknown browser");

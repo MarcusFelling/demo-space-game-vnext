@@ -82,7 +82,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
 }
 
 // Monitor
-resource appInsights 'Microsoft.Insights/components@2018-05-01-preview' = {
+resource appInsights 'Microsoft.Insights/components@2018-05-01-preview' = if(devEnv == 'false') {
   name: '${appService.name}-monitor'
   location: resourceGroup().location
   tags: {

@@ -17,4 +17,4 @@ jobs:
       run: | 
           echo "BRANCH_NAME=$(echo ${{ github.event.pull_request.head.ref }} | sed 's/\//_/g')" >> $GITHUB_ENV        
     - name: Cleanup dev environment after PR is closed
-      run: az webapp delete --name ${{ env.APPNAME }}-${{ env.BRANCH_NAME }} --resource-group ${{ env.APPNAME }}-dev-rg
+      run: az webapp delete --name ${{ env.APPNAME }}-dev-${{ env.BRANCH_NAME }} --resource-group ${{ env.APPNAME }}-dev-rg

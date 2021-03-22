@@ -25,7 +25,7 @@ jobs:
             dotnet restore UnitTests/UnitTests.csproj
             dotnet build WebApp/WebApp.csproj --configuration Release
             dotnet build UnitTests/UnitTests.csproj --configuration Release
-            dotnet test UnitTests/UnitTests.csproj -o Results.xml
+            dotnet test UnitTests/UnitTests.csproj
 
     - name: Create Azure container registry using Bicep
       run: >
@@ -260,7 +260,7 @@ jobs:
     - name: Run load tests
       run: | 
         cd LoadTests        
-        ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname='https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net'
+        ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
 
   deployProd:
     name: Deploy to Prod

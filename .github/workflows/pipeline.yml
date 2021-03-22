@@ -90,7 +90,7 @@ jobs:
     name: Deploy to Dev
     environment: 
       name: dev
-      url: https://${{ env.APPNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: dev
       DEVENV: true

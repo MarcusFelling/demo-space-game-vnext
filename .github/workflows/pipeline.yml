@@ -1,5 +1,8 @@
 name: pipeline
-on: [workflow_dispatch, push]
+on:
+  push:
+  workflow_dispatch:
+
 env:
   APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
   REGISTRYSKU: 'Standard'
@@ -50,11 +53,16 @@ jobs:
         username: ${{ steps.acrCredentials.outputs.acr_username }}
         password: ${{ steps.acrCredentials.outputs.acr_password }}
 
-    - name: Docker Build & Push to ACR
-      run: |
-        docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
-        docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }} 
-        docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}   
+    - name: Docker Build
+      run:  docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}         
+    
+    - name: Scan Container
+      uses: Azure/container-scan@v0
+      with:
+        image-name: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
+
+    - name: Docker Push to ACR
+      run: docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}           
 
   buildDatabase:
     name: Build - Database

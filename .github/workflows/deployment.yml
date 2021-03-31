@@ -67,9 +67,12 @@ jobs:
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'
 
-    - uses: actions/download-artifact@v2
-      name: download dacpac from build
+    - name: Download artifact
+      uses: dawidd6/action-download-artifact@v2
       with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        workflow: build.yml
+        workflow_conclusion: success
         name: dacpac
 
     - name: Deploy Database using dacpac
@@ -124,9 +127,12 @@ jobs:
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'
 
-    - uses: actions/download-artifact@v2
-      name: Download dacpac from build
+    - name: Download artifact
+      uses: dawidd6/action-download-artifact@v2
       with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        workflow: build.yml
+        workflow_conclusion: success
         name: dacpac
 
     - name: Deploy Database using dacpac
@@ -222,9 +228,12 @@ jobs:
                        dbPassword='${{ secrets.DBPASSWORD }}' \
                        devEnv='${{ env.DEVENV }}'     
 
-    - uses: actions/download-artifact@v2
-      name: Download dacpac from build
+    - name: Download artifact
+      uses: dawidd6/action-download-artifact@v2
       with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        workflow: build.yml
+        workflow_conclusion: success
         name: dacpac
 
     - name: Deploy Database using dacpac

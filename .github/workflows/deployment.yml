@@ -1,11 +1,9 @@
 name: deploy
 on:
   workflow_run:
-   workflows:
-     - build
-   types:
-     - completed
-
+    workflows: ["build"]
+    types: 
+      - completed
 env:
   APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
   REGISTRYSKU: 'Standard'

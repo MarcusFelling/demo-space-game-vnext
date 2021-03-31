@@ -33,7 +33,7 @@ jobs:
 
     - name: Publish Results to Testspace
       run: |
-        testspace TestResults.xml coverage.cobertura.xml
+        testspace UnitTests/TestResults.xml UnitTests/coverage.cobertura.xml
       if: always()
 
     - name: Create Azure container registry using Bicep

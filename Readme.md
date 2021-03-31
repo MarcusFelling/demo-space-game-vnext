@@ -8,9 +8,9 @@ The Space Game website is a .NET 5 web app written in C# that's deployed to ‚òÅÔ
 # CI/CD Workflow
 
 ![Build](https://github.com/MarcusFelling/Demo.SpaceGamevNext/actions/workflows/build.yml/badge.svg?branch=main) 
-![Deploy](https://github.com/MarcusFelling/Demo.SpaceGamevNext/actions/workflows/deploy.yml/badge.svg?branch=main)
+![Deploy](https://github.com/MarcusFelling/Demo.SpaceGamevNext/actions/workflows/deployment.yml/badge.svg?branch=main)
 
-1. The main branch is set up with [branch protection rules](https://docs.github.com/en/github/administering-a-repository/managing-a-branch-protection-rule#:~:text=You%20can%20create%20a%20branch,merged%20into%20the%20protected%20branch.) that requires all of the jobs in the [build](https://github.com/MarcusFelling/Demo.SpaceGamevNext/actions/workflows/pipeline.yml) and [deploy](https://github.com/MarcusFelling/Demo.SpaceGamevNext/actions/workflows/pipeline.yml) workflows to complete successfully. This means the topic branch that is targeting main, will need to successfully make it through the entirety of the pipeline before the PR can be completed and merged into main.
+1. The main branch is set up with [branch protection rules](https://docs.github.com/en/github/administering-a-repository/managing-a-branch-protection-rule#:~:text=You%20can%20create%20a%20branch,merged%20into%20the%20protected%20branch.) that requires all of the jobs in the [build](https://github.com/MarcusFelling/Demo.SpaceGamevNext/blob/main/.github/workflows/build.yml) and [deploy](https://github.com/MarcusFelling/Demo.SpaceGamevNext/blob/main/.github/workflows/deployment.yml) workflows to complete successfully. This means the topic branch that is targeting main, will need to successfully make it through the entirety of the pipeline before the PR can be completed and merged into main.
 2. The build workflow ensures all projects successfully compile and unit tests pass.
 3. The deploy workflow will provision a new website for your branch (branch name will be in URL), that can be used for exploratory testing or remote debugging. The URL of the new website will post to the Environments section of the PR. Click "View Deployment" to open the site:
 ![environment](https://user-images.githubusercontent.com/6855361/111533320-a61e8800-8734-11eb-93d4-b2f4883313b3.PNG)

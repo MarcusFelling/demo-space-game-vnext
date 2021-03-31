@@ -60,6 +60,7 @@ jobs:
       uses: Azure/container-scan@v0
       with:
         image-name: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
+        severity-threshold: CRITICAL
 
     - name: Docker Push to ACR
       run: docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}           

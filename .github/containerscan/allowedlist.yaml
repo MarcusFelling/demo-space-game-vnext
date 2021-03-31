@@ -4,6 +4,8 @@ general:
     - CVE-2007-0086
     - CVE-2019-3462
     - CVE-2011-3374
+    - CVE-2021-20231
+    - CVE-2021-20232
   bestPracticeViolations:
     - CIS-DI-0005
     - DKL-LI-0003

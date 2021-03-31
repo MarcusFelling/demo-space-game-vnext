@@ -1,0 +1,94 @@
+name: build
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
+  REGISTRYSKU: 'Standard'
+  REGISTRYNAME: 'marcusfellingspacegamevnextacr' # Registry that is shared across environments
+
+jobs:
+  buildApp:
+    name: Build - App
+    runs-on: ubuntu-20.04  
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Azure authentication
+      uses: azure/login@v1  
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Build app and run unit tests 
+      run: | 
+            dotnet restore WebApp/WebApp.csproj
+            dotnet restore UnitTests/UnitTests.csproj
+            dotnet build WebApp/WebApp.csproj --configuration Release
+            dotnet build UnitTests/UnitTests.csproj --configuration Release
+            dotnet test UnitTests/UnitTests.csproj
+
+    - name: Create Azure container registry using Bicep
+      run: >
+        az deployment group create \
+          --resource-group '${{ env.APPNAME }}-ACR-rg' \
+          --template-file IaC/registry.bicep \
+          --parameters registry='${{ env.REGISTRYNAME }}' \
+                       registrySku='${{ env.REGISTRYSKU }}'        
+
+    - name: Fetch ACR credentials
+      id: acrCredentials
+      continue-on-error: false
+      run: |
+          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username`"
+          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
+          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
+
+    - name: ACR authentication
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ env.REGISTRYNAME }}.azurecr.io
+        username: ${{ steps.acrCredentials.outputs.acr_username }}
+        password: ${{ steps.acrCredentials.outputs.acr_password }}
+
+    - name: Docker Build and Push to ACR
+      run: | 
+        docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
+        docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}         
+        docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
+
+    - name: Scan Container
+      uses: Azure/container-scan@v0
+      with:
+        image-name: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
+        severity-threshold: CRITICAL
+
+  buildDatabase:
+    name: Build - Database
+    runs-on: windows-latest  
+    steps:
+    - uses: actions/checkout@master
+    
+    - name: setup-msbuild
+      uses: microsoft/setup-msbuild@v1
+    
+    - name: Use MSBuild to build db project
+      run: MSBuild.exe Database/Database.sqlproj
+    
+    - name: Copy dacpac before artifact Upload
+      run: Copy-Item "Database/bin/Debug/Database.dacpac" -Destination "Database.dacpac"
+
+    - name: Upload dacpac as artifact    
+      uses: actions/upload-artifact@v2
+      with:
+        name: dacpac
+        path: Database.dacpac
+
+  buildIaC:
+    name: Build - Infrastructure
+    runs-on: ubuntu-20.04  
+    steps:
+    - uses: actions/checkout@master
+    - name: Run Bicep build to ensure transpilation is successful before deployment
+      run: | 
+        az bicep build --files IaC/main.bicep    

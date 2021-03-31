@@ -25,7 +25,6 @@ jobs:
             dotnet restore WebApp/WebApp.csproj
             dotnet restore UnitTests/UnitTests.csproj
             dotnet build WebApp/WebApp.csproj --configuration Release
-            dotnet build UnitTests/UnitTests.csproj --configuration Release
             dotnet test UnitTests/UnitTests.csproj --logger:"trx;LogFileName=TestResults.xml" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=Coverage
 
     - uses: testspace-com/setup-testspace@v1

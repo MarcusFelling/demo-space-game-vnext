@@ -1,31 +1,60 @@
 // Creates all infrastructure for Space Game
 targetScope = 'subscription' // switch to sub scope to create resource group
 
-param appName string // Used as base name of resources
+// PARAMETERS
+@description('Application name - used as prefix for resource names')
+param appName string
+@description('Environment name')
+@allowed([
+  'dev'
+  'test'
+  'prod'
+])
 param environmentName string
-param branchName string = '' // only passed in for dev environment
+@description('Source branch of PR - passed in via pipeline for dev environment')
+param branchName string = ''
+@description('Primary location for all resources')
+param location string = deployment().location
+@description('App Service Plan SKU')
+@allowed([
+  'S1'
+  'S2'
+  'S3'
+])
 param appSku string
+@description('Name of shared registry')
 param registryName string
+@description('Container image tag - uses commit SHA passed in via pipeline')
 param tag string
+@description('Shared registry SKU')
+@allowed([
+  'Basic'
+  'Standard'
+  'Premium'
+])
 param registrySku string
+@description('Database user name')
 param dbUserName string
+@description('Database password - passed in via GitHub secret')
 @secure()
 param dbPassword string
-param devEnv string // Used for conditionals on features like deployment slots
+@description('Boolean for Dev environments - Used in conditions for resources that are skipped in dev (deploy slots, app insights, etc)')
+param devEnv bool = false
 
+// RESOURCES
 // Create resource group for webapp and db
 resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   name: '${appName}-${environmentName}-rg'
-  location: deployment().location
+  location: location
 }
 
 // Create resource group for ACR
 resource acrrg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   name: '${appName}-ACR-rg'
-  location: deployment().location
+  location: location
 }
 
-// Create registry
+// Create shared registry
 module registry 'registry.bicep' = {
   name: '${appName}-registry-${environmentName}-${uniqueString(acrrg.name)}'
   scope: acrrg
@@ -58,11 +87,11 @@ module webapp 'webapp.bicep' = {
     appSku: appSku
     registry: registry.outputs.acrName
     tag: tag
+    devEnv: devEnv
     // Use output from db module to set connection string
     sqlServer: db.outputs.sqlServerFQDN
     dbName: db.outputs.databaseName 
     dbUserName: db.outputs.userName 
     dbPassword: dbPassword
-    devEnv: devEnv
     }
 }    

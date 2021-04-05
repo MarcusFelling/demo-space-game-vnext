@@ -1,13 +1,20 @@
-// SQL
+// PARAMETERS
+@description('Name of SQL Server instance - default is %appName%-%environmentName%-sql')
 param sqlServerName string
+@description('Name of database - default is %appName%database')
 param dbName string
+@description('Database user name')
 param dbUserName string
+@description('Database password - passed in via GitHub secret')
 @secure()
 param dbPassword string
+@description('Primary location for resources')
+param location string = resourceGroup().location
 
+// RESOURCES
 resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
   name: sqlServerName
-  location: resourceGroup().location
+  location: location
   properties: {
     administratorLogin: dbUserName
     administratorLoginPassword: dbPassword
@@ -16,7 +23,7 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
 
   resource database 'databases@2020-08-01-preview' = {
     name: '${dbName}'
-    location: resourceGroup().location
+    location: location
     sku: {
       name: 'GP_S_Gen5'
       tier: 'GeneralPurpose'

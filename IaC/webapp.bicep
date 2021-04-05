@@ -1,21 +1,45 @@
-// Web App
+// PARAMETERS
+@description('Environment name')
+@allowed([
+  'dev'
+  'test'
+  'prod'
+])
 param environmentName string
+@description('Primary location for resources')
+param location string = resourceGroup().location
+@description('Application name - used as prefix for resource names')
 param appName string
-param branchName string = '' // only passed in for dev environment
-param appSku string = 'S1'
+@description('Source branch of PR - passed in via pipeline for dev environment')
+param branchName string = ''
+@description('App Service Plan SKU')
+@allowed([
+  'S1'
+  'S2'
+  'S3'
+])
+param appSku string
+@description('Name of shared registry')
 param registry string
+@description('Container image tag - uses commit SHA passed in via pipeline')
 param tag string
+@description('Name of SQL Server instance - default is %appName%-%environmentName%-sql')
 param sqlServer string
+@description('Name of database - default is %appName%database')
 param dbName string
+@description('Database user name')
 param dbUserName string
+@description('Database password - passed in via GitHub secret')
 @secure()
 param dbPassword string
-param devEnv string // Used in condition for deployment slots
+@description('Boolean for Dev environments - Used in conditions for resources that are skipped in dev (deploy slots, app insights, etc)')
+param devEnv bool = false
 
+// RESOURCES
 resource servicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   kind: 'linux'
   name: '${appName}-${environmentName}-plan'
-  location: resourceGroup().location
+  location: location
   sku: {
     name: appSku
   }
@@ -33,7 +57,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2020-11-01-preview' existin
 
 resource appService 'Microsoft.Web/sites@2020-06-01' = {
   name: '${appName}-${environmentName}${branchName}'
-  location: resourceGroup().location
+  location: location
   properties: {
     siteConfig: {
       appSettings: [
@@ -70,9 +94,9 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
   }
 
   // Create deployment slot if it's not a dev environment
-  resource deploySlot 'slots@2020-06-01' = if(devEnv == 'false') {
+  resource deploySlot 'slots@2020-06-01' = if (!devEnv) {
     name: 'swap'
-    location: resourceGroup().location
+    location: location
     kind: 'linux'
     properties: {
       enabled: true
@@ -81,10 +105,10 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
   }
 }
 
-// Monitor
-resource appInsights 'Microsoft.Insights/components@2018-05-01-preview' = if(devEnv == 'false') {
+// Creat app insights if it's not a dev environment
+resource appInsights 'Microsoft.Insights/components@2018-05-01-preview' = if (!devEnv) {
   name: '${appService.name}-monitor'
-  location: resourceGroup().location
+  location: location
   tags: {
     'hidden-link:${appService.id}': 'Resource'
     displayName: 'AppInsightsComponent'

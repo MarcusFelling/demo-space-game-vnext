@@ -18,7 +18,7 @@ param branchName string = ''
   'S2'
   'S3'
 ])
-param appSku string
+param appSku string = 'S2'
 @description('Name of shared registry')
 param registry string
 @description('Container image tag - uses commit SHA passed in via pipeline')
@@ -44,7 +44,7 @@ resource servicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
     name: appSku
   }
   properties: {
-    reserved:true
+    reserved: true
   }
 }
 
@@ -62,7 +62,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
     siteConfig: {
       appSettings: [
         {
-          name: 'DOCKER_REGISTRY_SERVER_URL'          
+          name: 'DOCKER_REGISTRY_SERVER_URL'
           value: acr.properties.loginServer
         }
         {
@@ -80,7 +80,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
       ]
       linuxFxVersion: 'DOCKER|${acr.properties.loginServer}/${appName}:${tag}'
     }
-    serverFarmId: '${servicePlan.id}'    
+    serverFarmId: '${servicePlan.id}'
   }
 
   resource connectionString 'config@2020-06-01' = {
@@ -118,4 +118,3 @@ resource appInsights 'Microsoft.Insights/components@2018-05-01-preview' = if (!d
     Application_Type: 'web'
   }
 }
-

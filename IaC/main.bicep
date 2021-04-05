@@ -58,7 +58,7 @@ resource acrrg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 module registry 'registry.bicep' = {
   name: '${appName}-registry-${environmentName}-${uniqueString(acrrg.name)}'
   scope: acrrg
-  params:{
+  params: {
     registry: registryName
     registrySku: registrySku
   }
@@ -68,11 +68,11 @@ module registry 'registry.bicep' = {
 module db 'db.bicep' = {
   name: '${appName}-db-${environmentName}-${uniqueString(rg.name)}'
   scope: rg
-  params:{
+  params: {
     sqlServerName: '${appName}-${environmentName}-sql'
-    dbName: '${appName}database'   
+    dbName: '${appName}database'
     dbUserName: dbUserName
-    dbPassword: dbPassword         
+    dbPassword: dbPassword
   }
 }
 
@@ -80,7 +80,7 @@ module db 'db.bicep' = {
 module webapp 'webapp.bicep' = {
   name: '${appName}-webapp-${environmentName}-${uniqueString(rg.name)}'
   scope: rg
-  params:{
+  params: {
     environmentName: environmentName
     appName: appName
     branchName: branchName
@@ -90,8 +90,8 @@ module webapp 'webapp.bicep' = {
     devEnv: devEnv
     // Use output from db module to set connection string
     sqlServer: db.outputs.sqlServerFQDN
-    dbName: db.outputs.databaseName 
-    dbUserName: db.outputs.userName 
+    dbName: db.outputs.databaseName
+    dbUserName: db.outputs.userName
     dbPassword: dbPassword
-    }
-}    
+  }
+}

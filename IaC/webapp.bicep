@@ -18,7 +18,7 @@ param branchName string = ''
   'S2'
   'S3'
 ])
-param appSku string = 'S2'
+param appSku string
 @description('Name of shared registry')
 param registry string
 @description('Container image tag - uses commit SHA passed in via pipeline')

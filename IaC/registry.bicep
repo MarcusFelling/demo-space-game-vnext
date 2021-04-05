@@ -1,7 +1,7 @@
 @description('Shared registry name')
 param registry string
 @description('Shared registry SKU')
-param registrySku string = 'Standard'
+param registrySku string
 @description('Primary location for resources')
 param location string = resourceGroup().location
 

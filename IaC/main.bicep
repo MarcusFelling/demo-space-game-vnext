@@ -21,7 +21,7 @@ param location string = deployment().location
   'S2'
   'S3'
 ])
-param appSku string
+param appSku string = 'S2'
 @description('Name of shared registry')
 param registryName string
 @description('Container image tag - uses commit SHA passed in via pipeline')
@@ -32,7 +32,7 @@ param tag string
   'Standard'
   'Premium'
 ])
-param registrySku string
+param registrySku string = 'Standard'
 @description('Database user name')
 param dbUserName string
 @description('Database password - passed in via GitHub secret')

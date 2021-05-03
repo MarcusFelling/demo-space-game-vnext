@@ -87,7 +87,7 @@ jobs:
       - uses: actions/checkout@master
       - name: Run Bicep build to ensure transpilation is successful before deployment
         run: |
-          az bicep build --files IaC/main.bicep
+          az bicep build --file IaC/main.bicep
 
   deployDev:
     name: Deploy to Dev

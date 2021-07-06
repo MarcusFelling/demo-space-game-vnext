@@ -94,6 +94,24 @@ jobs:
           Find-Module pester -Repository psgallery | Install-Module -Force -Scope CurrentUser
           Invoke-Pester -Script ".\IaCTests\Bicep.Tests.ps1" -Passthru
 
+      - name: Run Pester tests on Bicep templates
+        uses: zyborg/pester-tests-report@v1
+        id: IaCTests
+        with:
+          include_paths: IaCTests
+          report_name: IaC_tests
+          report_title: IaC Tests
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: dump test results
+        shell: pwsh
+        run: |
+          Write-Host 'Total Tests Executed...:  ${{ steps.IaCTests.outputs.total_count }}'
+          Write-Host 'Total Tests PASSED.....:  ${{ steps.IaCTests.outputs.passed_count }}'
+          Write-Host 'Total Tests FAILED.....:  ${{ steps.IaCTests.outputs.failed_count }}'
+         
+
+
   deployDev:
     name: Deploy to Dev
     environment:

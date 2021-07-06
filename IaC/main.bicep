@@ -15,24 +15,10 @@ param environmentName string
 param branchName string = ''
 @description('Primary location for all resources')
 param location string = deployment().location
-@description('App Service Plan SKU')
-@allowed([
-  'S1'
-  'S2'
-  'S3'
-])
-param appSku string = 'S3'
 @description('Name of shared registry')
 param registryName string
 @description('Container image tag - uses commit SHA passed in via pipeline')
 param tag string
-@description('Shared registry SKU')
-@allowed([
-  'Basic'
-  'Standard'
-  'Premium'
-])
-param registrySku string = 'Standard'
 @description('Database user name')
 param dbUserName string
 @description('Database password - passed in via GitHub secret')
@@ -60,7 +46,7 @@ module registry 'registry.bicep' = {
   scope: acrrg
   params: {
     registry: registryName
-    registrySku: registrySku
+    registrySku: 'Standard'
   }
 }
 
@@ -84,7 +70,7 @@ module webapp 'webapp.bicep' = {
     environmentName: environmentName
     appName: appName
     branchName: branchName
-    appSku: appSku
+    appSku: 'S2'
     registry: registry.outputs.acrName
     tag: tag
     devEnv: devEnv

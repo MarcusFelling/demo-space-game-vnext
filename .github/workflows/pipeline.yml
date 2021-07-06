@@ -88,11 +88,6 @@ jobs:
       - name: Run Bicep build to ensure transpilation and linting are successful before deployment
         run: |
           az bicep build --file IaC/main.bicep
-      - name: Run Pester tests on Bicep templates
-        shell: pwsh
-        run: 
-          Find-Module pester -Repository psgallery | Install-Module -Force -Scope CurrentUser
-          Invoke-Pester -Script ".\IaCTests\Bicep.Tests.ps1" -Passthru
 
       - name: Run Pester tests on Bicep templates
         uses: zyborg/pester-tests-report@v1
@@ -102,7 +97,7 @@ jobs:
           report_name: IaC_tests
           report_title: IaC Tests
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: dump test results
         shell: pwsh
         run: |

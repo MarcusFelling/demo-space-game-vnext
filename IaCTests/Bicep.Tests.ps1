@@ -1,10 +1,10 @@
 Describe 'Bicep Template Validation' {
     Context 'Template File Validation' {
         It "Transpiled ARM Template File Exists" {
-            Test-Path -Path "..\IaC\main.json" | Should -BeTrue
+            Test-Path -Path ".\IaC\main.json" | Should -BeTrue
         }
         It "Transpiled ARM Template is a valid json file" {
-            Get-Content "..\IaC\main.json" -raw | ConvertFrom-json -ErrorAction SilentlyContinue | Should -Not -Be $null
+            Get-Content ".\IaC\main.json" -raw | ConvertFrom-json -ErrorAction SilentlyContinue | Should -Not -Be $null
         }
     }
     Context 'Template Content Validation' {

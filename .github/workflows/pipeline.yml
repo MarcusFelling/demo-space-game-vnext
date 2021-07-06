@@ -94,7 +94,7 @@ jobs:
         id: IaCTests
         with:
           include_paths: IaCTests
-          report_name: Test - Infrastructure
+          report_name: Run Infrastructure tests
           report_title: IaC
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tests_fail_step: true

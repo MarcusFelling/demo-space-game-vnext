@@ -21,7 +21,7 @@ param location string = deployment().location
   'S2'
   'S3'
 ])
-param appSku string = 'S2'
+param appSku string = 'S3'
 @description('Name of shared registry')
 param registryName string
 @description('Container image tag - uses commit SHA passed in via pipeline')

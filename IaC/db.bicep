@@ -22,7 +22,7 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
   }
 
   resource database 'databases@2020-08-01-preview' = {
-    name: '${dbName}'
+    name: dbName
     location: location
     sku: {
       name: 'GP_S_Gen5'

@@ -56,7 +56,7 @@ resource acrrg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 
 // Create shared registry
 module registry 'registry.bicep' = {
-  name: '${appName}-registry-${environmentName}-${uniqueString(acrrg.name)}'
+  name: '${appName}-registry-${uniqueString(acrrg.name)}'
   scope: acrrg
   params: {
     registry: registryName

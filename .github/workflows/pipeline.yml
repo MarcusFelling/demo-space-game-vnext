@@ -89,7 +89,7 @@ jobs:
         run: |
           az bicep build --file IaC/main.bicep
       - name: Run Pester tests on Bicep templates
-        shell: powershell
+        shell: pwsh
         run: 
           Find-Module pester -Repository psgallery | Install-Module -Force -Scope CurrentUser
           Invoke-Pester -Script ".\IaCTests\Bicep.Tests.ps1" -Passthru

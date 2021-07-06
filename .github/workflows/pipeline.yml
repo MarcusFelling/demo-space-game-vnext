@@ -85,9 +85,14 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@master
-      - name: Run Bicep build to ensure transpilation is successful before deployment
+      - name: Run Bicep build to ensure transpilation and linting are successful before deployment
         run: |
           az bicep build --file IaC/main.bicep
+      - name: Run Pester tests on Bicep templates
+        shell: powershell
+        run: 
+          Find-Module pester -Repository psgallery | Install-Module -Force -Scope CurrentUser
+          Invoke-Pester -Script ".\IaCTests\Bicep.Tests.ps1" -Passthru
 
   deployDev:
     name: Deploy to Dev

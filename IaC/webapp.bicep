@@ -4,7 +4,6 @@
   'dev'
   'test'
   'prod'
-  'prod-preview'
 ])
 param environmentName string
 @description('Primary location for resources')

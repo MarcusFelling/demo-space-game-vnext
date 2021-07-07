@@ -248,8 +248,6 @@ jobs:
   previewIaCProd:
     name: Preview IaC Changes
     runs-on: ubuntu-20.04
-    environment:
-      name: prod-preview
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false

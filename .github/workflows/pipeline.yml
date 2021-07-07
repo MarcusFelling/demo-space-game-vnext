@@ -268,7 +268,7 @@ jobs:
     environment:
       name: prod-preview
     env:
-      ENVIRONMENTNAME: prod-preview
+      ENVIRONMENTNAME: prod
       DEVENV: false
     needs: [testLoad, testFunctional]
     steps:

@@ -89,6 +89,19 @@ jobs:
         run: |
           bicep build IaC/main.bicep
 
+      - name: Run ARM Template Test Toolkit (arm-ttk) on transpiled ARM template
+        id: armtest
+        uses: aliencube/arm-ttk-actions@v0.3
+        with:
+          path: ./IaC
+          files: main.json
+
+      - name: Test Results
+        shell: bash
+        continue-on-error: true
+        run: |
+          echo "${{ toJSON(fromJSON(steps.armtest.outputs.results)) }}"    
+
   deployDev:
     name: Deploy to Dev
     environment:

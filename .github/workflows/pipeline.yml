@@ -87,25 +87,8 @@ jobs:
       - uses: actions/checkout@master
       - name: Run Bicep build to ensure transpilation and linting are successful before deployment
         run: |
-          az bicep build --file IaC/main.bicep
+          bicep build IaC/main.bicep
 
-      - name: Run Pester tests on Bicep templates
-        uses: zyborg/pester-tests-report@v1
-        id: IaCTests
-        with:
-          include_paths: IaCTests
-          report_name: Run Infrastructure tests
-          report_title: IaC
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          tests_fail_step: true
-
-      - name: dump test results
-        shell: pwsh
-        run: |
-          Write-Host 'Total Tests Executed...:  ${{ steps.IaCTests.outputs.total_count }}'
-          Write-Host 'Total Tests PASSED.....:  ${{ steps.IaCTests.outputs.passed_count }}'
-          Write-Host 'Total Tests FAILED.....:  ${{ steps.IaCTests.outputs.failed_count }}'
-         
   deployDev:
     name: Deploy to Dev
     environment:

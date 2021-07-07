@@ -106,8 +106,6 @@ jobs:
           Write-Host 'Total Tests PASSED.....:  ${{ steps.IaCTests.outputs.passed_count }}'
           Write-Host 'Total Tests FAILED.....:  ${{ steps.IaCTests.outputs.failed_count }}'
          
-
-
   deployDev:
     name: Deploy to Dev
     environment:
@@ -129,21 +127,6 @@ jobs:
       - name: Extract branch name to append to app name
         run: |
           echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV
-
-      - name: Preview infrastructure changes
-        run: >
-          az deployment sub what-if \
-            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
-            --location '${{ env.LOCATION }}' \
-            --template-file IaC/main.bicep \
-            --parameters appName='${{ env.APPNAME }}' \
-                         environmentName=${{ env.ENVIRONMENTNAME }} \
-                         branchName='-${{ env.BRANCH_NAME }}' \
-                         registryName='${{ env.REGISTRYNAME }}' \
-                         tag='${{ github.sha }}' \
-                         dbUserName='${{ secrets.DBUSERNAME }}' \
-                         dbPassword='${{ secrets.DBPASSWORD }}' \
-                         devEnv='${{ env.DEVENV }}'
 
       - name: Deploy infrastructure
         run: >
@@ -279,6 +262,37 @@ jobs:
           cd LoadTests        
           ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
 
+  previewIaCProd:
+    name: Preview IaC Changes
+    runs-on: ubuntu-20.04
+    environment:
+      name: prod-preview
+    env:
+      ENVIRONMENTNAME: prod-preview
+      DEVENV: false
+    needs: [testLoad, testFunctional]
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Azure authentication
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Preview infrastructure changes
+        run: >
+          az deployment sub what-if \
+            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
+            --location '${{ env.LOCATION }}' \
+            --template-file IaC/main.bicep \
+            --parameters appName='${{ env.APPNAME }}' \
+                         environmentName=${{ env.ENVIRONMENTNAME }} \
+                         registryName='${{ env.REGISTRYNAME }}' \
+                         tag='${{ github.sha }}' \
+                         dbUserName='${{ secrets.DBUSERNAME }}' \
+                         dbPassword='${{ secrets.DBPASSWORD }}' \
+                         devEnv='${{ env.DEVENV }}'
+
   deployProd:
     name: Deploy to Prod
     runs-on: ubuntu-20.04
@@ -288,7 +302,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: [testLoad, testFunctional]
+    needs: [previewIaCProd]
     steps:
       - uses: actions/checkout@master
 
@@ -310,7 +324,7 @@ jobs:
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
                          devEnv='${{ env.DEVENV }}'
-
+                         
       - uses: actions/download-artifact@v2
         name: Download dacpac from build
         with:

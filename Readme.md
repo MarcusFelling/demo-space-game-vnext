@@ -15,7 +15,7 @@ The Space Game website is a .NET 5 web app that's deployed to ☁️ Azure Web A
 3. The pipeline will provision a new website for your branch (branch name will be in URL), that can be used for exploratory testing or remote debugging. The URL of the new website will post to the Environments section of the PR. Click "View Deployment" to open the site:
 ![environment](https://user-images.githubusercontent.com/6855361/111533320-a61e8800-8734-11eb-93d4-b2f4883313b3.PNG)
 4. Meanwhile, the pipeline will execute functional and load tests in a testing environment.
-5. If all tests are successful, the pipeline will run [what-if](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-what-if?tabs=azure-powershell) to preview any infrastructure changes then wait for manual review/approval before deploying to production.
+5. If all tests are successful, the pipeline will run [what-if](https://docs.microsoft.com/azure/azure-resource-manager/templates/deploy-what-if?tabs=azure-powershell) to preview any infrastructure changes then wait for manual review/approval before deploying to production.
 6. After the PR is merged, a final [workflow](https://github.com/MarcusFelling/Demo.SpaceGamevNext/blob/main/.github/workflows/cleanup.yml) will run to clean up the development environment.
 
 ![pipeline](https://user-images.githubusercontent.com/6855361/111533722-1cbb8580-8735-11eb-95e7-df517da9a9cc.PNG)

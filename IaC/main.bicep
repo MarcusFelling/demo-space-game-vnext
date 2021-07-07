@@ -9,6 +9,7 @@ param appName string
   'dev'
   'test'
   'prod'
+  'prod-preview'
 ])
 param environmentName string
 @description('Source branch of PR - passed in via pipeline for dev environment')

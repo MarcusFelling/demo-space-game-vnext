@@ -128,21 +128,6 @@ jobs:
         run: |
           echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV
 
-      - name: Preview infrastructure changes
-        run: >
-          az deployment sub what-if \
-            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
-            --location '${{ env.LOCATION }}' \
-            --template-file IaC/main.bicep \
-            --parameters appName='${{ env.APPNAME }}' \
-                         environmentName=${{ env.ENVIRONMENTNAME }} \
-                         branchName='-${{ env.BRANCH_NAME }}' \
-                         registryName='${{ env.REGISTRYNAME }}' \
-                         tag='${{ github.sha }}' \
-                         dbUserName='${{ secrets.DBUSERNAME }}' \
-                         dbPassword='${{ secrets.DBPASSWORD }}' \
-                         devEnv='${{ env.DEVENV }}'
-
       - name: Deploy infrastructure
         run: >
           az deployment sub create \

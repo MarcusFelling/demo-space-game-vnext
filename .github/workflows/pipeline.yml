@@ -85,9 +85,23 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@master
-      - name: Run Bicep build to ensure transpilation and linting are successful before deployment
+      - name: Validate Bicep templates to ensure transpilation, linting, and preflight are successful
+        working-directory: IaC
+        env:
+          ENVIRONMENTNAME: dev
+          DEVENV: true        
         run: |
-          bicep build IaC/main.bicep   
+          az deployment sub validate \
+            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
+            --location '${{ env.LOCATION }}' \
+            --template-file main.bicep \
+            --parameters appName='${{ env.APPNAME }}' \
+                         environmentName=${{ env.ENVIRONMENTNAME }} \
+                         registryName='${{ env.REGISTRYNAME }}' \
+                         tag='${{ github.sha }}' \
+                         dbUserName='${{ secrets.DBUSERNAME }}' \
+                         dbPassword='${{ secrets.DBPASSWORD }}' \
+                         devEnv='${{ env.DEVENV }}'          
 
   deployDev:
     name: Deploy to Dev

@@ -70,7 +70,7 @@ module webapp 'webapp.bicep' = {
     environmentName: environmentName
     appName: appName
     branchName: branchName
-    appSku: 'S2'
+    appSku: 'S3'
     registry: registry.outputs.acrName
     tag: tag
     devEnv: devEnv

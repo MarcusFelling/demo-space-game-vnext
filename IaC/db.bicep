@@ -51,7 +51,7 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
 }
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-  name: 'badstorageaccount523135'
+  name: 'mynewstorageaccount523'
   location: location
   kind: 'StorageV2'
   sku: {

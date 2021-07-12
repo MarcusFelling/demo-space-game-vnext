@@ -50,6 +50,16 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
   }
 }
 
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: 'badstorageaccount523135'
+  location: location
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_GRS'
+    tier: 'Standard'
+  }
+}
+
 // Use outputs for connection string in web app module
 output sqlServerFQDN string = sqlServer.properties.fullyQualifiedDomainName
 output databaseName string = sqlServer::database.name

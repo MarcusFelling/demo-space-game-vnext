@@ -280,9 +280,9 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Preview infrastructure changes
+      - name: Preview infrastructure changes (only show Create, Delete, Modify)
         run: >
-          az deployment sub what-if \
+          az deployment sub what-if --exclude-change-types Ignore NoChange \
             --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
             --location '${{ env.LOCATION }}' \
             --template-file IaC/main.bicep \

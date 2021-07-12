@@ -46,7 +46,7 @@ module registry 'registry.bicep' = {
   scope: acrrg
   params: {
     registry: registryName
-    registrySku: 'Standard'
+    registrySku: 'Premium'
   }
 }
 

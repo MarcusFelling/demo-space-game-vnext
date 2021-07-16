@@ -19,7 +19,6 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
     administratorLogin: dbUserName
     administratorLoginPassword: dbPassword
     version: '12.0'
-    minimalTlsVersion: '1.2'
   }
 
   resource database 'databases@2020-08-01-preview' = {

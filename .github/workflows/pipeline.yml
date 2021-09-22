@@ -231,19 +231,20 @@ jobs:
 
   testFunctional:
     name: Run PlaywrightTests
-    runs-on: windows-latest
+    runs-on: ubuntu-20.04
+    container: mcr.microsoft.com/playwright:v1.14.1-focal # Use container with Playwright installed
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
-      SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests tests use this env var
+      SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
     needs: [deployTest]
     steps:
       - uses: actions/checkout@master
       - name: Run PlaywrightTests
         continue-on-error: false
-        run: |
+        run: |          
           dotnet test PlaywrightTests/PlaywrightTests.csproj
 
   testLoad:

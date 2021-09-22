@@ -230,21 +230,21 @@ jobs:
           az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'
 
   testFunctional:
-    name: Run functional tests
+    name: Run PlaywrightTests
     runs-on: windows-latest
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
-      SITE_URL: https://spacegamevnext-test.azurewebsites.net # Selenium tests use this env var
+      SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests tests use this env var
     needs: [deployTest]
     steps:
       - uses: actions/checkout@master
-      - name: Run functional tests
+      - name: Run PlaywrightTests
         continue-on-error: false
         run: |
-          dotnet test FunctionalTests/FunctionalTests.csproj
+          dotnet test PlaywrightTests/PlaywrightTests.csproj
 
   testLoad:
     name: Run load tests

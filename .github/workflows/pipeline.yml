@@ -245,6 +245,8 @@ jobs:
       - name: Run PlaywrightTests
         continue-on-error: false
         run: |          
+          dotnet tool install --global Microsoft.Playwright.CLI
+          playwright install
           dotnet test PlaywrightTests/PlaywrightTests.csproj
 
   testLoad:

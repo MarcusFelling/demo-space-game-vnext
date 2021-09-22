@@ -15,11 +15,11 @@ namespace PlaywrightTests
             await Helpers.VisitURL(Page);
             
             // Filter Galaxy
-            await page.ClickAsync("text=Milky Way");
+            await Page.ClickAsync("text=Milky Way");
             await Page.ClickAsync("text=Andromeda");
             await Page.ClickAsync("text=Pinwheel");
-            await page.ClickAsync("text=NGC 1300");
-            await page.ClickAsync("text=Messier 82");
+            await Page.ClickAsync("text=NGC 1300");
+            await Page.ClickAsync("text=Messier 82");
 
             // Filter Mode
             await Page.ClickAsync("text=Solo");

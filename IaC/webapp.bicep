@@ -36,7 +36,7 @@ param dbPassword string
 param devEnv bool = false
 
 // RESOURCES
-resource servicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
+resource servicePlan 'Microsoft.Web/serverfarms@2021-01-15' = {
   kind: 'linux'
   name: '${appName}-${environmentName}-plan'
   location: location
@@ -50,12 +50,12 @@ resource servicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
 
 // Reference existing ACR for docker app settings.
 // This resource will not be deployed by this file, but the declaration provides access to properties on the existing resource.
-resource acr 'Microsoft.ContainerRegistry/registries@2020-11-01-preview' existing = {
+resource acr 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' existing = {
   name: registry
   scope: resourceGroup('${appName}-ACR-rg')
 }
 
-resource appService 'Microsoft.Web/sites@2020-06-01' = {
+resource appService 'Microsoft.Web/sites@2021-01-15' = {
   name: '${appName}-${environmentName}${branchName}'
   location: location
   properties: {
@@ -83,7 +83,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
     serverFarmId: '${servicePlan.id}'
   }
 
-  resource connectionString 'config@2020-06-01' = {
+  resource connectionString 'config@2021-01-15' = {
     name: 'connectionstrings'
     properties: {
       DefaultConnection: {
@@ -94,7 +94,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
   }
 
   // Create deployment slot if it's not a dev environment
-  resource deploySlot 'slots@2020-06-01' = if (!devEnv) {
+  resource deploySlot 'slots@2021-01-15' = if (!devEnv) {
     name: 'swap'
     location: location
     kind: 'linux'
@@ -106,7 +106,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
 }
 
 // Creat app insights if it's not a dev environment
-resource appInsights 'Microsoft.Insights/components@2018-05-01-preview' = if (!devEnv) {
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = if (!devEnv) {
   name: '${appService.name}-monitor'
   location: location
   tags: {

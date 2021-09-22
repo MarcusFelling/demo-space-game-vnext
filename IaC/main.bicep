@@ -29,13 +29,13 @@ param devEnv bool = false
 
 // RESOURCES
 // Create resource group for webapp and db
-resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: '${appName}-${environmentName}-rg'
   location: location
 }
 
 // Create resource group for ACR
-resource acrrg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+resource acrrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: '${appName}-ACR-rg'
   location: location
 }

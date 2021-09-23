@@ -243,7 +243,8 @@ jobs:
       - uses: actions/checkout@master
       - name: Run PlaywrightTests
         continue-on-error: false
-        run: |          
+        run: |  
+          dotnet build PlaywrightTests/PlaywrightTests.csproj        
           dotnet tool install --global Microsoft.Playwright.CLI
           playwright install
           dotnet test PlaywrightTests/PlaywrightTests.csproj

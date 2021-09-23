@@ -230,7 +230,7 @@ jobs:
           az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'
 
   testPlaywright:
-    name: Run PlaywrightTests
+    name: Run Playwright Tests
     runs-on: ubuntu-20.04
     environment:
       name: test
@@ -250,12 +250,12 @@ jobs:
           dotnet test PlaywrightTests/PlaywrightTests.csproj --logger trx
 
       - name: Publish Playwright Test Results
-        uses: NasAmin/trx-parser@v0.1
+        uses: NasAmin/trx-parser@v0.2.0
         if: always()
         id: trx-parser
         with:
           TRX_PATH: ${{ github.workspace }}/PlaywrightTests/TestResults
-          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}         
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
 
   testLoad:
     name: Run load tests

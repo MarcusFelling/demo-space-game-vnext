@@ -8,6 +8,7 @@ namespace PlaywrightTests.lib
     {
         public static async Task<IResponse> VisitURL(IPage page, string path = "/")
         { 
+            // Use env variable to set site URL
             string url = Environment.GetEnvironmentVariable("SITE_URL"); 
             return await page.GotoAsync(url);
         }

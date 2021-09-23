@@ -229,7 +229,7 @@ jobs:
         run: |
           az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'
 
-  testFunctional:
+  testPlaywright:
     name: Run PlaywrightTests
     runs-on: ubuntu-20.04
     environment:
@@ -241,13 +241,21 @@ jobs:
     needs: [deployTest]
     steps:
       - uses: actions/checkout@master
-      - name: Run PlaywrightTests
+      - name: Run Playwright Tests
         continue-on-error: false
         run: |  
           dotnet build PlaywrightTests/PlaywrightTests.csproj        
           dotnet tool install --global Microsoft.Playwright.CLI
           playwright install
-          dotnet test PlaywrightTests/PlaywrightTests.csproj
+          dotnet test PlaywrightTests/PlaywrightTests.csproj --logger trx
+
+      - name: Publish Playwright Test Results
+        uses: NasAmin/trx-parser@v0.1
+        if: always()
+        id: trx-parser
+        with:
+          TRX_PATH: ${{ github.workspace }}/PlaywrightTests/TestResults
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}         
 
   testLoad:
     name: Run load tests
@@ -274,7 +282,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: [testLoad, testFunctional]
+    needs: [testLoad, testPlaywright]
     steps:
       - uses: actions/checkout@master
 

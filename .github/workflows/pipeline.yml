@@ -6,6 +6,7 @@ env:
   LOCATION: "WestUS" # Region for all Azure resources
 
 jobs:
+
   testE2E:
     name: Run Playwright Tests
     runs-on: ubuntu-20.04
@@ -20,6 +21,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
+
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2
@@ -31,6 +33,7 @@ jobs:
         working-directory: 'e2eTests'
         continue-on-error: false
         run: |  
+          npm install -D @playwright/test
           npx playwright install --with-deps  
           npx playwright test --shard=${{ matrix.shard }}/5
 

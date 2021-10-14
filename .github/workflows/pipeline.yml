@@ -12,14 +12,14 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        shard: [1]
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
-  
+    
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2
@@ -33,7 +33,7 @@ jobs:
         run: |  
           npm install -D @playwright/test
           npx playwright install --with-deps  
-          npx playwright test --shard=${{ matrix.shard }}/10
+          npx playwright test --shard=${{ matrix.shard }}/1
 
       - uses: actions/upload-artifact@v2
         if: failure()
@@ -50,7 +50,8 @@ jobs:
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
-      SITE_URL: https://spacegamevnext-test.azurewebsites.net # JMeter tests use this env var  
+      SITE_URL: https://spacegamevnext-test.azurewebsites.net # JMeter tests use this env var
+
     steps:
       - uses: actions/checkout@master
 

@@ -7,8 +7,8 @@ test('Navigate leadboard', async ({ page }) => {
   await expect(page.locator('section.leaderboard')).toContainText('Space leaders');
   
   // Click #1 ranked profile
-  await page.click(':nth-match(:text("duality"), 2)');
-  
+  await page.click('[data-target="#profile-modal-1"]');
+
   // Make sure profile is ranked #1
   await page.click('text=Rank #1'); 
 

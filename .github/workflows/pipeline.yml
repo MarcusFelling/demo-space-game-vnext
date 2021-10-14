@@ -229,9 +229,12 @@ jobs:
         run: |
           az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'
 
-  testPlaywright:
+  testE2E:
     name: Run Playwright Tests
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
@@ -241,21 +244,24 @@ jobs:
     needs: [deployTest]
     steps:
       - uses: actions/checkout@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Install dependencies
+        run: npm ci     
       - name: Run Playwright Tests
+        working-directory: 'e2eTests'
         continue-on-error: false
         run: |  
-          dotnet build PlaywrightTests/PlaywrightTests.csproj        
-          dotnet tool install --global Microsoft.Playwright.CLI
-          playwright install
-          dotnet test PlaywrightTests/PlaywrightTests.csproj --logger trx
+          npm install -D @playwright/test
+          npx playwright install --with-deps  
+          npx playwright test --shard=${{ matrix.shard }}/10
 
-      - name: Publish Playwright Test Results
-        uses: NasAmin/trx-parser@v0.2.0
-        if: always()
-        id: trx-parser
+      - uses: actions/upload-artifact@v2
+        if: failure()
         with:
-          TRX_PATH: ${{ github.workspace }}/PlaywrightTests/TestResults
-          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          name: playwright-test-results
+          path: e2eTests/test-results/  
 
   testLoad:
     name: Run load tests
@@ -282,7 +288,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: [testLoad, testPlaywright]
+    needs: [testLoad, testE2E]
     steps:
       - uses: actions/checkout@master
 

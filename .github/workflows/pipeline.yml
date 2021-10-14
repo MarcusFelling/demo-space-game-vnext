@@ -244,7 +244,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: Run Playwright Tests
-      - working-directory: 'e2eTests'
+        working-directory: 'e2eTests'
         continue-on-error: false
         run: |  
           npm run test:e2e

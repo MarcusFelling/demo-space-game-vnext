@@ -5,7 +5,7 @@ import path from 'path';
 const config: PlaywrightTestConfig = {
   
   // Timeout per test
-  timeout: 10 * 1000,
+  timeout: 40 * 1000,
   // If a test fails, retry it additional 2 times
   retries: 2,
   // Artifacts folder where screenshots, videos, and traces are stored.
@@ -54,7 +54,13 @@ const config: PlaywrightTestConfig = {
       use: {
         ...devices['Pixel 5'],
       },
-    }    
+    },
+    {
+      name: 'Mobile Safari',
+      use: {
+        ...devices['iPhone 12'],
+      },
+    }      
   ],
 };
 export default config;

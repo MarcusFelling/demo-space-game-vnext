@@ -4,8 +4,8 @@ test('Navigate leadboard', async ({ page }) => {
   await page.goto('');
 
   // Leaderboard section should have Space leaders header
-  await expect(page.locator('section.leaderboard')).toContainText('Space leaders');
-  
+  await expect(page.locator('section.leaderboard > div > h2')).toHaveText('Space leaders');
+
   // Click #1 ranked profile
   await page.click('[data-target="#profile-modal-1"]');
 

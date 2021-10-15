@@ -25,8 +25,10 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14.x'
+
       - name: Install dependencies
         run: npm ci     
+
       - name: Playwright Install
         working-directory: 'e2eTests'
         continue-on-error: false
@@ -38,7 +40,7 @@ jobs:
         working-directory: 'e2eTests'
         continue-on-error: false
         run: |   
-          npx playwright test --shard=${{ matrix.shard }}/10
+          PWDEBUG=console npx playwright test --shard=${{ matrix.shard }}/10
 
       - uses: actions/upload-artifact@v2
         if: failure()
@@ -56,7 +58,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # JMeter tests use this env var
-    
+
     steps:
       - uses: actions/checkout@master
 

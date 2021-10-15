@@ -6,6 +6,228 @@ env:
   LOCATION: "WestUS" # Region for all Azure resources
 
 jobs:
+  buildApp:
+    name: Build - App
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Azure authentication
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build app and run unit tests
+        run: |
+          dotnet restore WebApp/WebApp.csproj
+          dotnet restore UnitTests/UnitTests.csproj
+          dotnet build WebApp/WebApp.csproj --configuration Release
+          dotnet build UnitTests/UnitTests.csproj --configuration Release
+          dotnet test UnitTests/UnitTests.csproj
+
+      - name: Create Azure container registry using Bicep
+        run: >
+          az deployment group create \
+            --resource-group '${{ env.APPNAME }}-ACR-rg' \
+            --template-file IaC/registry.bicep \
+            --parameters registry='${{ env.REGISTRYNAME }}'
+
+      - name: Fetch ACR credentials
+        id: acrCredentials
+        continue-on-error: false
+        run: |
+          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username`"
+          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
+          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
+
+      - name: ACR authentication
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.REGISTRYNAME }}.azurecr.io
+          username: ${{ steps.acrCredentials.outputs.acr_username }}
+          password: ${{ steps.acrCredentials.outputs.acr_password }}
+
+      - name: Docker Build & Push to ACR
+        run: |
+          docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
+          docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }} 
+          docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
+
+      - name: Scan Container
+        uses: Azure/container-scan@v0
+        with:
+          image-name: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
+          severity-threshold: CRITICAL
+
+  buildDatabase:
+    name: Build - Database
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: setup-msbuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Use MSBuild to build db project
+        run: MSBuild.exe Database/Database.sqlproj
+
+      - name: Copy dacpac before artifact Upload
+        run: Copy-Item "Database/bin/Debug/Database.dacpac" -Destination "Database.dacpac"
+
+      - name: Upload dacpac as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: dacpac
+          path: Database.dacpac
+
+  buildIaC:
+    name: Build - Infrastructure
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Azure authentication
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+                
+      - name: Validate Bicep templates to ensure transpilation, linting, and preflight are successful
+        working-directory: IaC
+        env:
+          ENVIRONMENTNAME: dev
+          DEVENV: true        
+        run: |
+          az deployment sub validate \
+            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
+            --location '${{ env.LOCATION }}' \
+            --template-file main.bicep \
+            --parameters appName='${{ env.APPNAME }}' \
+                         environmentName=${{ env.ENVIRONMENTNAME }} \
+                         registryName='${{ env.REGISTRYNAME }}' \
+                         tag='${{ github.sha }}' \
+                         dbUserName='${{ secrets.DBUSERNAME }}' \
+                         dbPassword='${{ secrets.DBPASSWORD }}' \
+                         devEnv='${{ env.DEVENV }}'          
+
+  deployDev:
+    name: Deploy to Dev
+    environment:
+      name: dev
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net
+    env:
+      ENVIRONMENTNAME: dev
+      DEVENV: true
+    needs: [buildApp, buildDatabase, buildIaC]
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Azure authentication
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Extract branch name to append to app name
+        run: |
+          echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV
+
+      - name: Deploy infrastructure
+        run: >
+          az deployment sub create \
+            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
+            --location '${{ env.LOCATION }}' \
+            --template-file IaC/main.bicep \
+            --parameters appName='${{ env.APPNAME }}' \
+                         environmentName=${{ env.ENVIRONMENTNAME }} \
+                         branchName='-${{ env.BRANCH_NAME }}' \
+                         registryName='${{ env.REGISTRYNAME }}' \
+                         tag='${{ github.sha }}' \
+                         dbUserName='${{ secrets.DBUSERNAME }}' \
+                         dbPassword='${{ secrets.DBPASSWORD }}' \
+                         devEnv='${{ env.DEVENV }}'
+
+      - uses: actions/download-artifact@v2
+        name: download dacpac from build
+        with:
+          name: dacpac
+
+      - name: Deploy Database using dacpac
+        uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
+        with:
+          args: /SourceFile:"Database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
+
+      - name: Get ACR credentials
+        id: getACRCred
+        run: |
+          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
+          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
+          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
+
+      - name: "Deploy to Azure Web App for Containers"
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.BRANCH_NAME }}"
+          images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
+
+  deployTest:
+    name: Deploy to Test
+    runs-on: ubuntu-20.04
+    environment:
+      name: test
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+    env:
+      ENVIRONMENTNAME: test
+      DEVENV: false
+    needs: [deployDev]
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Azure authentication
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy infrastructure
+        run: >
+          az deployment sub create \
+            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
+            --location '${{ env.LOCATION }}' \
+            --template-file IaC/main.bicep \
+            --parameters appName='${{ env.APPNAME }}' \
+                         environmentName=${{ env.ENVIRONMENTNAME }} \
+                         registryName='${{ env.REGISTRYNAME }}' \
+                         tag='${{ github.sha }}' \
+                         dbUserName='${{ secrets.DBUSERNAME }}' \
+                         dbPassword='${{ secrets.DBPASSWORD }}' \
+                         devEnv='${{ env.DEVENV }}'
+
+      - uses: actions/download-artifact@v2
+        name: Download dacpac from build
+        with:
+          name: dacpac
+
+      - name: Deploy Database using dacpac
+        uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
+        with:
+          args: /SourceFile:"Database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
+
+      - name: Get ACR credentials
+        id: getACRCred
+        run: |
+          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
+          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
+          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
+
+      - name: "Deploy to Azure Web App for Containers slot"
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}"
+          slot-name: "swap"
+          images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
+
+      - name: Swap slots for no downtime deploy
+        run: |
+          az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'
 
   testE2E:
     name: Run Playwright Tests
@@ -19,7 +241,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
-    
+    needs: [deployTest]
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2
@@ -40,7 +262,7 @@ jobs:
         working-directory: 'e2eTests'
         continue-on-error: false
         run: |   
-          PWDEBUG=console npx playwright test --shard=${{ matrix.shard }}/10
+          npx playwright test --shard=${{ matrix.shard }}/10
 
       - uses: actions/upload-artifact@v2
         if: failure()
@@ -58,7 +280,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # JMeter tests use this env var
-
+    needs: deployTest
     steps:
       - uses: actions/checkout@master
 

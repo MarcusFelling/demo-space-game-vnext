@@ -3,7 +3,6 @@ import path from 'path';
 
 // Reference: https://playwright.dev/docs/test-configuration
 const config: PlaywrightTestConfig = {
-  
   // Timeout per test
   timeout: 40 * 1000,
   // If a test fails, retry it additional 2 times
@@ -54,13 +53,7 @@ const config: PlaywrightTestConfig = {
       use: {
         ...devices['Pixel 5'],
       },
-    },
-    {
-      name: 'Mobile Safari',
-      use: {
-        ...devices['iPhone 12 Pro Max landscape'],
-      },
-    }      
+    }     
   ],
 };
 export default config;

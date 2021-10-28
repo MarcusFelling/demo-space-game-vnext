@@ -3,6 +3,7 @@ import path from 'path';
 
 // Reference: https://playwright.dev/docs/test-configuration
 const config: PlaywrightTestConfig = {
+  testDir: 'e2eTests/',
   // Timeout per test
   timeout: 40 * 1000,
   // If a test fails, retry it additional 2 times

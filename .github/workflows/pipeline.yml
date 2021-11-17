@@ -11,13 +11,16 @@ jobs:
     name: Run Playwright Tests
     runs-on: ubuntu-20.04
     container: mcr.microsoft.com/playwright:focal
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4]    
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
- 
+    
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2
@@ -35,7 +38,7 @@ jobs:
       - name: Run Playwright Tests        
         continue-on-error: false
         run: |   
-          HOME=/root npx playwright test --config playwright.config.ts
+          HOME=/root npx playwright test --config playwright.config.ts --shard=${{ matrix.shard }}/4
 
       - uses: actions/upload-artifact@v2
         if: failure()

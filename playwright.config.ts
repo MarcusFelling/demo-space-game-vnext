@@ -33,9 +33,14 @@ const config: PlaywrightTestConfig = {
       name: 'Desktop Chrome',
       use: {
         ...devices['Desktop Chrome'],
-
       },
     },
+    {
+      name: 'Desktop Edge',
+      use: {
+        ...devices['Desktop Edge'],
+      },
+    },    
     {
       name: 'Desktop Firefox',
       use: {
@@ -54,7 +59,13 @@ const config: PlaywrightTestConfig = {
       use: {
         ...devices['Pixel 5'],
       },
-    }     
+    },
+    {
+      name: 'Mobile Safari',
+      use: {
+        ...devices['iPhone 13'],
+      },      
+    },   
   ],
 };
 export default config;

@@ -16,7 +16,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
-
+    
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2
@@ -31,10 +31,10 @@ jobs:
         run: |  
           npx playwright install --with-deps  
 
-      - name: Run Playwright Tests
+      - name: Run Playwright Tests        
         continue-on-error: false
         run: |   
-          npx playwright test
+          npx playwright test --config playwright.config.ts
 
       - uses: actions/upload-artifact@v2
         if: failure()
@@ -52,7 +52,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # JMeter tests use this env var
-
+    
     steps:
       - uses: actions/checkout@master
 

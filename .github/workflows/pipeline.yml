@@ -27,13 +27,11 @@ jobs:
         run: npm ci     
 
       - name: Playwright Install
-        working-directory: 'e2eTests'
         continue-on-error: false
         run: |  
           npx playwright install --with-deps  
 
       - name: Run Playwright Tests
-        working-directory: 'e2eTests'
         continue-on-error: false
         run: |   
           npx playwright test
@@ -54,6 +52,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # JMeter tests use this env var
+
     steps:
       - uses: actions/checkout@master
 

@@ -5,7 +5,7 @@ import path from 'path';
 const config: PlaywrightTestConfig = {
   testDir: 'e2eTests/',
   // Timeout per test
-  timeout: 40 * 1000,
+  timeout: 30 * 1000,
   // If a test fails, retry it additional 2 times
   retries: 2,
   // Artifacts folder where screenshots, videos, and traces are stored.

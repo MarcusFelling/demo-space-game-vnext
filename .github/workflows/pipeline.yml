@@ -16,7 +16,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
-    
+  
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2
@@ -40,7 +40,7 @@ jobs:
         if: failure()
         with:
           name: playwright-test-results
-          path: e2eTests/test-results/  
+          path: test-results/  
 
   testLoad:
     name: Run load tests
@@ -52,7 +52,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # JMeter tests use this env var
-    
+  
     steps:
       - uses: actions/checkout@master
 

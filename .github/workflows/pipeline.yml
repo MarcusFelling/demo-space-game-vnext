@@ -16,7 +16,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
-    needs: [deployTest]
+
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2

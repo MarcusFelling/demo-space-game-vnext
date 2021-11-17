@@ -232,9 +232,10 @@ jobs:
   testE2E:
     name: Run Playwright Tests
     runs-on: ubuntu-20.04
+    container: mcr.microsoft.com/playwright:focal
     strategy:
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        shard: [1, 2, 3, 4]    
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
@@ -252,23 +253,20 @@ jobs:
         run: npm ci     
 
       - name: Playwright Install
-        working-directory: 'e2eTests'
         continue-on-error: false
         run: |  
-          npm install -D @playwright/test
           npx playwright install --with-deps  
 
-      - name: Run Playwright Tests
-        working-directory: 'e2eTests'
+      - name: Run Playwright Tests        
         continue-on-error: false
         run: |   
-          npx playwright test --shard=${{ matrix.shard }}/10
+          HOME=/root npx playwright test --config playwright.config.ts --shard=${{ matrix.shard }}/4
 
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: playwright-test-results
-          path: e2eTests/test-results/  
+          path: test-results/  
 
   testLoad:
     name: Run load tests

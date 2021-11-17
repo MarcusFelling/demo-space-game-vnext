@@ -10,13 +10,14 @@ jobs:
   testE2E:
     name: Run Playwright Tests
     runs-on: ubuntu-20.04
+    container: mcr.microsoft.com/playwright:focal
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
-  
+    
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2
@@ -52,7 +53,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # JMeter tests use this env var
-  
+    
     steps:
       - uses: actions/checkout@master
 

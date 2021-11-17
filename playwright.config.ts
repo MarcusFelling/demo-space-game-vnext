@@ -63,7 +63,7 @@ const config: PlaywrightTestConfig = {
     {
       name: 'Mobile Safari',
       use: {
-        ...devices['iPhone 13'],
+        ...devices['iPhone 13 Pro Max landscape'],
       },      
     },   
   ],

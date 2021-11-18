@@ -17,7 +17,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
-    
+  
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2
@@ -32,13 +32,18 @@ jobs:
         run: |   
           HOME=/root npx playwright test --config playwright.config.ts --reporter=html
 
-      # Get url via steps.html_preview.outputs.url
       - name: HTML Preview
         if: always()
         id: html_preview
         uses: pavi2410/html-preview-action@v2
         with:
           html_file: 'playwright-report/index.html'
+
+      - name: PR comment with HTML report
+        uses: github-actions-up-and-running/pr-comment@v1.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          message: ${{ format('[Click here to preview test report]({0})', steps.html_preview.outputs.url) }}   
 
       - uses: actions/upload-artifact@v2
         name: Upload HTML report

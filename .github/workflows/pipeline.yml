@@ -270,7 +270,7 @@ jobs:
         name: If failure, upload trace.zip to troubleshoot
         if: failure()
         with:
-          name: playwright-test-results
+          name: playwright-test-trace
           path: test-results/  
 
   testLoad:

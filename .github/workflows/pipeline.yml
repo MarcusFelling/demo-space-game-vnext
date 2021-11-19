@@ -249,11 +249,6 @@ jobs:
       - name: Install dependencies
         run: npm ci     
 
-      - name: Playwright Install
-        continue-on-error: false
-        run: |  
-          npx playwright install --with-deps  
-
       - name: Run Playwright Tests        
         continue-on-error: false
         run: |   

@@ -7,21 +7,21 @@ test('Navigate leadboard', async ({ page }) => {
   await expect(page.locator('section.leaderboard > div > h2')).toHaveText('Space leaders');
   
   // Click #1 ranked profile
-  await page.click('[data-target="#profile-modal-1"]');
+  await page.locator('[data-target="#profile-modal-1"]').click();
 
   // Make sure profile is ranked #1
-  await page.click('text=Rank #1');
+  await page.locator('text=Rank #1').click();
   
   // Make sure profile has at least 1 achievement
   const length = await page.$$eval('div.modal-body > div > div.col-sm-8 > div > ul', (items) => items.length);
   expect(length >= 1).toBeTruthy();
   
   // Close profile modal
-  await page.click('[data-dismiss="modal"]');
+  await page.locator('[data-dismiss="modal"]').click();
 
   // Paginate results
-  await page.click('text=2 (current)');
-  await page.click('text=3 (current)');
-  await page.click('text=1 (current)');
+  await page.locator('text=2 (current)').click();
+  await page.locator('text=3 (current)').click();
+  await page.locator('text=1 (current)').click();
 
 });

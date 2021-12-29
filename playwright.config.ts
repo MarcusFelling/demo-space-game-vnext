@@ -26,6 +26,8 @@ const config: PlaywrightTestConfig = {
     contextOptions: {
       ignoreHTTPSErrors: true,
     },
+
+    acceptDownloads: true,
   },
 
   projects: [

@@ -252,7 +252,7 @@ jobs:
       - name: Run Playwright Tests        
         continue-on-error: false
         run: |   
-          HOME=/root npx playwright test --config playwright.config.ts --reporter=html
+          HOME=/root npx playwright test --config playwright.config.ts
 
       - uses: actions/upload-artifact@v2
         name: Upload HTML report

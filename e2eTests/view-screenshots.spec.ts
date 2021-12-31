@@ -10,6 +10,6 @@ test('View game screenshot examples', async ({ page }) => {
     await page.locator("data-test-id=" + screenshot).click();
     
     // Close screenshot
-    await page.locator('text=× Gamescreen example >> button').click(); 
+    await page.locator('text=× Gamescreen example >> button.close').click(); 
   }
 });

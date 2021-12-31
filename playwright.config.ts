@@ -11,6 +11,9 @@ const config: PlaywrightTestConfig = {
   // Artifacts folder where screenshots, videos, and traces are stored.
   outputDir: 'test-results/',
 
+  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+  reporter: 'html',
+  
   use: {
     // Run headless by default
     headless: true,
@@ -46,7 +49,7 @@ const config: PlaywrightTestConfig = {
     {
       name: 'Desktop Firefox',
       use: {
-        ...devices['Desktop Firefox'],
+        ...devices['Desktop Firefox HiDPI'],
       },
     },
     {

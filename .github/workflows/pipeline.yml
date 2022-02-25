@@ -1,9 +1,9 @@
 name: pipeline
 on: [workflow_dispatch, push]
 env:
-  APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
-  REGISTRYNAME: "marcusfellingspacegamevnextacr" # Registry that is shared across environments
-  LOCATION: "WestUS" # Region for all Azure resources
+  APPNAME: dapspace # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
+  REGISTRYNAME: "dapespace-acr" # Registry that is shared across environments
+  LOCATION: "EastUS" # Region for all Azure resources
 
 jobs:
   buildApp:

@@ -24,7 +24,7 @@ const config: PlaywrightTestConfig = {
   
   use: {
     // Run headless by default
-    headless: false,
+    headless: true,
 
     // Use env var to set baseURL
     baseURL: process.env.SITE_URL,

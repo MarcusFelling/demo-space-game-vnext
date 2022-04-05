@@ -281,35 +281,6 @@ jobs:
           cd LoadTests        
           ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
 
-  previewIaCProd:
-    name: Preview IaC Changes
-    runs-on: ubuntu-20.04
-    env:
-      ENVIRONMENTNAME: prod
-      DEVENV: false
-    needs: [testLoad, testE2E]
-    steps:
-      - uses: actions/checkout@master
-
-      - name: Azure authentication
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Preview infrastructure changes (only show Create, Delete, Modify)
-        run: >
-          az deployment sub what-if --exclude-change-types Ignore NoChange \
-            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
-            --location '${{ env.LOCATION }}' \
-            --template-file IaC/main.bicep \
-            --parameters appName='${{ env.APPNAME }}' \
-                         environmentName=${{ env.ENVIRONMENTNAME }} \
-                         registryName='${{ env.REGISTRYNAME }}' \
-                         tag='${{ github.sha }}' \
-                         dbUserName='${{ secrets.DBUSERNAME }}' \
-                         dbPassword='${{ secrets.DBPASSWORD }}' \
-                         devEnv='${{ env.DEVENV }}'
-
   deployProd:
     name: Deploy to Prod
     runs-on: ubuntu-20.04
@@ -319,7 +290,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: [previewIaCProd]
+    needs: [testLoad, testE2E]
     steps:
       - uses: actions/checkout@master
 

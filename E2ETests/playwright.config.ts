@@ -2,7 +2,6 @@ import { PlaywrightTestConfig, devices } from '@playwright/test';
 
 // Reference: https://playwright.dev/docs/test-configuration
 const config: PlaywrightTestConfig = {
-  testDir: 'e2eTests/',
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
 

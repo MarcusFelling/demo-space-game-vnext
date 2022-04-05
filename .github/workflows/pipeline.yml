@@ -245,9 +245,8 @@ jobs:
 
       - name: Run Playwright Tests        
         continue-on-error: false
-        working-directory: E2ETests
         run: |   
-          HOME=/root npx playwright test
+          HOME=/root npx playwright test --config E2ETests/playwright.config.ts
 
       - uses: actions/upload-artifact@v2
         name: Upload HTML report

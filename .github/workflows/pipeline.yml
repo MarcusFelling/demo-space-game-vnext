@@ -53,12 +53,6 @@ jobs:
           docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }} 
           docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
 
-      - name: Scan Container
-        uses: Azure/container-scan@v0
-        with:
-          image-name: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
-          severity-threshold: CRITICAL
-
   buildDatabase:
     name: Build - Database
     runs-on: windows-latest

@@ -12,7 +12,7 @@ param dbPassword string
 param location string = resourceGroup().location
 
 // RESOURCES
-resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2021-08-01-preview' = {
   name: sqlServerName
   location: location
   properties: {
@@ -21,7 +21,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
     version: '12.0'
   }
 
-  resource database 'databases@2021-02-01-preview' = {
+  resource database 'databases@2021-08-01-preview' = {
     name: dbName
     location: location
     sku: {
@@ -40,7 +40,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
     }
   }
 
-  resource firewallAllowAllWindowsAzureIps 'firewallRules@2021-02-01-preview' = {
+  resource firewallAllowAllWindowsAzureIps 'firewallRules@2021-08-01-preview' = {
     name: 'AllowAllWindowsAzureIps'
     properties: {
       startIpAddress: '0.0.0.0'

@@ -36,7 +36,7 @@ param dbPassword string
 param devEnv bool = false
 
 // RESOURCES
-resource servicePlan 'Microsoft.Web/serverfarms@2021-01-15' = {
+resource servicePlan 'Microsoft.Web/serverfarms@2021-03-01' = {
   kind: 'linux'
   name: '${appName}-${environmentName}-plan'
   location: location
@@ -50,12 +50,12 @@ resource servicePlan 'Microsoft.Web/serverfarms@2021-01-15' = {
 
 // Reference existing ACR for docker app settings.
 // This resource will not be deployed by this file, but the declaration provides access to properties on the existing resource.
-resource acr 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' existing = {
+resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
   name: registry
   scope: resourceGroup('${appName}-ACR-rg')
 }
 
-resource appService 'Microsoft.Web/sites@2021-01-15' = {
+resource appService 'Microsoft.Web/sites@2021-03-01' = {
   name: '${appName}-${environmentName}${branchName}'
   location: location
   properties: {
@@ -83,7 +83,7 @@ resource appService 'Microsoft.Web/sites@2021-01-15' = {
     serverFarmId: '${servicePlan.id}'
   }
 
-  resource connectionString 'config@2021-01-15' = {
+  resource connectionString 'config@2021-03-01' = {
     name: 'connectionstrings'
     properties: {
       DefaultConnection: {
@@ -94,7 +94,7 @@ resource appService 'Microsoft.Web/sites@2021-01-15' = {
   }
 
   // Create deployment slot if it's not a dev environment
-  resource deploySlot 'slots@2021-01-15' = if (!devEnv) {
+  resource deploySlot 'slots@2021-03-01' = if (!devEnv) {
     name: 'swap'
     location: location
     kind: 'linux'

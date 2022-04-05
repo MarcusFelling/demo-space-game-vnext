@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Azure authentication
-      uses: azure/login@v2 
+      uses: azure/login@v1 
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     - name: get source branch name for app

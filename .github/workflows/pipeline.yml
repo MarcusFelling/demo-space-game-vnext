@@ -245,6 +245,7 @@ jobs:
 
       - name: Run Playwright Tests        
         continue-on-error: false
+        working-directory: E2ETests
         run: |   
           HOME=/root npx playwright test
 

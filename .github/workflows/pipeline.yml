@@ -265,21 +265,27 @@ jobs:
   testLoad:
     name: Run load tests
     runs-on: ubuntu-20.04
-    container: justb4/jmeter:5.3 # Use container with JMeter installed
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
-      SITE_URL: https://spacegamevnext-test.azurewebsites.net # JMeter tests use this env var
     needs: deployTest
     steps:
       - uses: actions/checkout@master
 
-      - name: Run load tests
-        run: |
-          cd LoadTests        
-          ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
+      - name: Login to Azure
+        uses: azure/login@v1
+        continue-on-error: false
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+      - name: 'Azure Load Testing'
+        uses: azure/load-testing@v1
+        with:
+          loadTestConfigFile: 'LoadTests/load-test.jmx'
+          loadTestResource: ${{ env.APPNAME }}-loadtest
+          resourceGroup: ${{ env.APPNAME }}-loadtest-rg
 
   deployProd:
     name: Deploy to Prod

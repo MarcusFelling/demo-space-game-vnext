@@ -1,6 +1,6 @@
 version: v0.1
 testName: HomePage
-testPlan: HomePage.jmx
+testPlan: home-page.jmx
 description: 'Home Page Load Test'
 engineInstances: 3
 failureCriteria: 

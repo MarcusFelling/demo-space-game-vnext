@@ -18,7 +18,7 @@ namespace Tests
         {
             using (Stream scoresData = typeof(IDocumentDBRepository<Score>)
                 .Assembly
-                .GetManifestResourceStream("WebApp.SampleData.scores.json"))
+                .GetManifestResourceStream("web-app.SampleData.scores.json"))
             {
                 _scoreRepository = new LocalDocumentDBRepository<Score>(scoresData);
             }

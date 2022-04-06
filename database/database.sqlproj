@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <Name>Database</Name>
+    <Name>database</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{8baa5c4e-f217-4e45-8473-1ebae2684bff}</ProjectGuid>
@@ -26,6 +26,7 @@
     <DefaultFilegroup>PRIMARY</DefaultFilegroup>
     <QueryStoreDesiredState>ReadOnly</QueryStoreDesiredState>
     <TargetFrameworkProfile />
+    <TargetDatabase>database</TargetDatabase>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>

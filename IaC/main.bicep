@@ -47,6 +47,7 @@ module registry 'registry.bicep' = {
   params: {
     registry: registryName
     registrySku: 'Standard'
+    location: location
   }
 }
 
@@ -59,6 +60,7 @@ module db 'db.bicep' = {
     dbName: '${appName}database'
     dbUserName: dbUserName
     dbPassword: dbPassword
+    location: location
   }
 }
 
@@ -79,5 +81,6 @@ module webapp 'webapp.bicep' = {
     dbName: db.outputs.databaseName
     dbUserName: db.outputs.userName
     dbPassword: dbPassword
+    location: location
   }
 }

@@ -1,11 +1,18 @@
 import { PlaywrightTestConfig, devices } from '@playwright/test';
-import path from 'path';
 
 // Reference: https://playwright.dev/docs/test-configuration
 const config: PlaywrightTestConfig = {
-  testDir: 'e2eTests/',
-  // Timeout per test
-  timeout: 10 * 1000,
+  /* Maximum time one test can run for. */
+  timeout: 30 * 1000,
+
+  expect: {
+
+    /**
+     * Maximum time expect() should wait for the condition to be met.
+     * For example in `await expect(locator).toHaveText();`
+     */
+    timeout: 5000,
+  },
   // If a test fails, retry it additional 2 times
   retries: 2,
   // Artifacts folder where screenshots, videos, and traces are stored.

@@ -1,0 +1,5 @@
+version: v0.1
+testName: Homepage
+testPlan: Homepage.jmx
+description: 'Homepage load test'
+engineInstances: 20

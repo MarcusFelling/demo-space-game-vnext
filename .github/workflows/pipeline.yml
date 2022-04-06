@@ -296,7 +296,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: [testLoad, testE2E]
+    needs: [deployTest, testLoad, testE2E]
     steps:
       - uses: actions/checkout@master
 

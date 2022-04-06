@@ -3,3 +3,6 @@ testName: Homepage
 testPlan: Homepage.jmx
 description: 'Homepage load test'
 engineInstances: 20
+failureCriteria: 
+- avg(response_time_ms) > 200
+- percentage(error) > 20

@@ -274,6 +274,11 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
+      - name: Azure authentication
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
       - name: "Azure Load Testing"
         uses: azure/load-testing@v1
         with:

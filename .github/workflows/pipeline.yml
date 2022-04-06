@@ -224,7 +224,7 @@ jobs:
           az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'
 
   testE2E:
-    name: Run Playwright Tests
+    name: Run E2E Tests
     runs-on: ubuntu-20.04
     container: mcr.microsoft.com/playwright:focal
     environment:
@@ -260,7 +260,7 @@ jobs:
         if: failure()
         with:
           name: playwright-test-trace
-          path: E2ETests/test-results/
+          path: test-results/
 
   testLoad:
     name: Run Load Tests
@@ -278,7 +278,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          
+
       - name: "Azure Load Testing"
         uses: azure/load-testing@v1
         with:

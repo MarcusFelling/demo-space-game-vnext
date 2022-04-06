@@ -1,7 +1,7 @@
 version: v0.1
-testName: Homepage
-testPlan: Homepage.jmx
-description: 'Homepage load test'
+testName: HomePage
+testPlan: HomePage.jmx
+description: 'Home Page Load Test'
 engineInstances: 20
 failureCriteria: 
 - avg(response_time_ms) > 200

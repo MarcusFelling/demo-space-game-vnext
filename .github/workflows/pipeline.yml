@@ -84,12 +84,12 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-                
+
       - name: Validate Bicep templates to ensure transpilation, linting, and preflight are successful
         working-directory: IaC
         env:
           ENVIRONMENTNAME: dev
-          DEVENV: true        
+          DEVENV: true
         run: |
           az deployment sub validate \
             --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
@@ -101,7 +101,7 @@ jobs:
                          tag='${{ github.sha }}' \
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
-                         devEnv='${{ env.DEVENV }}'          
+                         devEnv='${{ env.DEVENV }}'
 
   deployDev:
     name: Deploy to Dev
@@ -224,7 +224,7 @@ jobs:
           az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'
 
   testE2E:
-    name: Run Playwright Tests
+    name: Run E2E Tests
     runs-on: ubuntu-20.04
     container: mcr.microsoft.com/playwright:focal
     environment:
@@ -238,14 +238,14 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version: "14.x"
 
       - name: Install dependencies
-        run: npm ci     
+        run: npm ci
 
-      - name: Run Playwright Tests        
+      - name: Run Playwright Tests
         continue-on-error: false
-        run: |   
+        run: |
           HOME=/root npx playwright test --config E2ETests/playwright.config.ts
 
       - uses: actions/upload-artifact@v2
@@ -260,26 +260,31 @@ jobs:
         if: failure()
         with:
           name: playwright-test-trace
-          path: test-results/  
+          path: test-results/
 
   testLoad:
-    name: Run load tests
+    name: Run Load Tests
     runs-on: ubuntu-20.04
-    container: justb4/jmeter:5.3 # Use container with JMeter installed
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
-      SITE_URL: https://spacegamevnext-test.azurewebsites.net # JMeter tests use this env var
-    needs: deployTest
+    needs: [deployTest, testE2E]
     steps:
       - uses: actions/checkout@master
 
-      - name: Run load tests
-        run: |
-          cd LoadTests        
-          ${JMETER_HOME}/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=${{ env.SITE_URL }}
+      - name: Azure authentication
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: "Azure Load Testing"
+        uses: azure/load-testing@v1
+        with:
+          loadTestConfigFile: "LoadTests/HomePage.yaml"
+          loadTestResource: ${{ env.APPNAME }}-loadtest
+          resourceGroup: ${{ env.APPNAME }}-loadtest-rg
 
   deployProd:
     name: Deploy to Prod
@@ -290,7 +295,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: [testLoad, testE2E]
+    needs: [deployTest, testLoad, testE2E]
     steps:
       - uses: actions/checkout@master
 
@@ -312,7 +317,7 @@ jobs:
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
                          devEnv='${{ env.DEVENV }}'
-                         
+
       - uses: actions/download-artifact@v2
         name: Download dacpac from build
         with:

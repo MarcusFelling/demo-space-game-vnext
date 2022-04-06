@@ -40,6 +40,12 @@ resource acrrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   location: location
 }
 
+// Create resource group for Azure Load Testing
+resource loadtestrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: '${appName}-loadtest-rg'
+  location: 'EastUS' // public preview not available in west US
+}
+
 // Create shared registry
 module registry 'registry.bicep' = {
   name: '${appName}-registry-${uniqueString(acrrg.name)}'
@@ -82,5 +88,14 @@ module webapp 'webapp.bicep' = {
     dbUserName: db.outputs.userName
     dbPassword: dbPassword
     location: location
+  }
+}
+
+// Create Azure Load Test infrastructure
+module loadtest 'loadtest.bicep' = {
+  name: '${appName}-loadtest-${uniqueString(loadtestrg.name)}'
+  scope: loadtestrg
+  params: {
+    appName: appName
   }
 }

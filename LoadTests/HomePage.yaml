@@ -2,7 +2,7 @@ version: v0.1
 testName: HomePage
 testPlan: HomePage.jmx
 description: 'Home Page Load Test'
-engineInstances: 20
+engineInstances: 3
 failureCriteria: 
-- avg(response_time_ms) > 200
+- avg(response_time_ms) > 5000
 - percentage(error) > 20

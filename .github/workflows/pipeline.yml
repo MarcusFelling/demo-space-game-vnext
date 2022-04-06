@@ -286,13 +286,6 @@ jobs:
           loadTestResource: ${{ env.APPNAME }}-loadtest
           resourceGroup: ${{ env.APPNAME }}-loadtest-rg
 
-      - name: "Upload test results"
-        uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: LoadTestResults
-          path: ${{ github.workspace }}/testLoad
-
   deployProd:
     name: Deploy to Prod
     runs-on: ubuntu-20.04

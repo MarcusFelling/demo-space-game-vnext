@@ -263,7 +263,7 @@ jobs:
           path: E2ETests/test-results/
 
   testLoad:
-    name: Run load tests
+    name: Run Load Tests
     runs-on: ubuntu-20.04
     environment:
       name: test
@@ -274,7 +274,6 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      # TODO: add IaC
       - name: "Azure Load Testing"
         uses: azure/load-testing@v1
         with:

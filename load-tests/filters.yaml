@@ -1,0 +1,10 @@
+version: v0.1
+testName: Filters
+testPlan: filters.jmx
+description: 'Filters Load Test'
+engineInstances: 3
+configurationFiles:
+- filters.csv
+failureCriteria: 
+- avg(response_time_ms) > 1000
+- percentage(error) > 5

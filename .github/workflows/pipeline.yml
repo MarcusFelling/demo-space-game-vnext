@@ -270,6 +270,7 @@ jobs:
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
+      SITE_URL: https://spacegamevnext-test.azurewebsites.net # Azure Load Testing uses this env var
     needs: [deploy-test, test-e2e]
     steps:
       - uses: actions/checkout@master
@@ -285,6 +286,13 @@ jobs:
           loadTestConfigFile: "load-tests/home-page.yaml"
           loadTestResource: ${{ env.APPNAME }}-loadtest
           resourceGroup: ${{ env.APPNAME }}-loadtest-rg
+          env: |
+            [
+                {
+                "name": "HOMEPAGE_URL",
+                "value": "spacegamevnext-test.azurewebsites.net"
+                }
+            ]          
 
   deploy-prod:
     name: Deploy to Prod

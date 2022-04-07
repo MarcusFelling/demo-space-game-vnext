@@ -30,7 +30,7 @@
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">spacegamevnext-test.azurewebsites.net</stringProp>
+          <stringProp name="HTTPSampler.domain">${HOMEPAGE_URL}</stringProp>
           <stringProp name="HTTPSampler.port"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -46,6 +46,16 @@
         </HTTPSamplerProxy>
         <hashTree/>
       </hashTree>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="HOMEPAGE_URL" elementType="Argument">
+            <stringProp name="Argument.name">HOMEPAGE_URL</stringProp>
+            <stringProp name="Argument.value">${__BeanShell( System.getenv(&quot;SITE_URL&quot;) )}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
+      <hashTree/>
     </hashTree>
   </hashTree>
 </jmeterTestPlan>

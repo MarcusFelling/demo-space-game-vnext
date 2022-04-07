@@ -270,7 +270,6 @@ jobs:
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
-      SITE_URL: https://spacegamevnext-test.azurewebsites.net # Azure Load Testing uses this env var
     needs: [deploy-test, test-e2e]
     steps:
       - uses: actions/checkout@master

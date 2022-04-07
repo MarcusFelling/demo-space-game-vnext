@@ -50,7 +50,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="HOMEPAGE_URL" elementType="Argument">
             <stringProp name="Argument.name">HOMEPAGE_URL</stringProp>
-            <stringProp name="Argument.value">${__BeanShell( System.getenv(&quot;SITE_URL&quot;) )}</stringProp>
+            <stringProp name="Argument.value">${__BeanShell( System.getenv(&quot;HOMEPAGE_URL&quot;) )}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>

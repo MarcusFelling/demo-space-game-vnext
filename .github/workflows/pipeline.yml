@@ -172,7 +172,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       DEVENV: false
-    needs: [deploy-dev]
+    needs: [build-app, build-database, build-iac]
     steps:
       - uses: actions/checkout@master
 
@@ -279,12 +279,19 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: "Azure Load Testing"
+      - name: "Azure Load Testing - Home Page Test"
         uses: azure/load-testing@v1
         with:
           loadTestConfigFile: "load-tests/home-page.yaml"
           loadTestResource: ${{ env.APPNAME }}-loadtest
           resourceGroup: ${{ env.APPNAME }}-loadtest-rg
+          env: |
+            [
+                {
+                "name": "HOMEPAGE_URL",
+                "value": "spacegamevnext-test.azurewebsites.net"
+                }
+            ]
 
   deploy-prod:
     name: Deploy to Prod

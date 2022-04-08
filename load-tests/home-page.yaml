@@ -3,6 +3,8 @@ testName: HomePage
 testPlan: home-page.jmx
 description: 'Home Page Load Test'
 engineInstances: 3
+configurationFiles:
+- filters.csv
 failureCriteria: 
 - avg(response_time_ms) > 1000
 - percentage(error) > 5

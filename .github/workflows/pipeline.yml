@@ -291,20 +291,6 @@ jobs:
                 "name": "HOMEPAGE_URL",
                 "value": "spacegamevnext-test.azurewebsites.net"
                 }
-            ]      
-
-      - name: "Azure Load Testing - Filters Test"
-        uses: azure/load-testing@v1
-        with:
-          loadTestConfigFile: "load-tests/filters.yaml"
-          loadTestResource: ${{ env.APPNAME }}-loadtest
-          resourceGroup: ${{ env.APPNAME }}-loadtest-rg
-          env: |
-            [
-                {
-                "name": "HOMEPAGE_URL",
-                "value": "spacegamevnext-test.azurewebsites.net"
-                }
             ]
 
   deploy-prod:

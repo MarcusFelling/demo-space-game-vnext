@@ -172,7 +172,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test
       DEVENV: false
-    needs: [deploy-dev]
+    needs: [build-app, build-database, build-iac]
     steps:
       - uses: actions/checkout@master
 

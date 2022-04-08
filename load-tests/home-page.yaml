@@ -6,5 +6,5 @@ engineInstances: 3
 configurationFiles:
 - filters.csv
 failureCriteria: 
-- avg(response_time_ms) > 1300
+- avg(response_time_ms) > 1500
 - percentage(error) > 1

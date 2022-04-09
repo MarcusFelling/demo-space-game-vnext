@@ -80,7 +80,7 @@ resource appService 'Microsoft.Web/sites@2021-03-01' = {
       ]
       linuxFxVersion: 'DOCKER|${acr.properties.loginServer}/${appName}:${tag}'
     }
-    serverFarmId: '${servicePlan.id}'
+    serverFarmId: servicePlan.id
   }
 
   resource connectionString 'config@2021-03-01' = {
@@ -100,7 +100,7 @@ resource appService 'Microsoft.Web/sites@2021-03-01' = {
     kind: 'linux'
     properties: {
       enabled: true
-      serverFarmId: '${servicePlan.id}'
+      serverFarmId: servicePlan.id
     }
   }
 }

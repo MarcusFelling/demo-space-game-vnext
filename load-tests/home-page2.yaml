@@ -1,0 +1,10 @@
+version: v0.1
+testName: HomePage2
+testPlan: home-page2.jmx
+description: 'Home Page Load Test 2'
+engineInstances: 3
+configurationFiles:
+- filters2.csv
+failureCriteria: 
+- avg(response_time_ms) > 1500
+- percentage(error) > 1

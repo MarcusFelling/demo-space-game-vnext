@@ -279,10 +279,24 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: "Azure Load Testing - Home Page Test"
+      - name: "Azure Load Testing - Test 1"
         uses: azure/load-testing@v1
         with:
           loadTestConfigFile: "load-tests/home-page.yaml"
+          loadTestResource: ${{ env.APPNAME }}-loadtest
+          resourceGroup: ${{ env.APPNAME }}-loadtest-rg
+          env: |
+            [
+                {
+                "name": "HOMEPAGE_URL",
+                "value": "spacegamevnext-test.azurewebsites.net"
+                }
+            ]
+
+      - name: "Azure Load Testing - Test 2"
+        uses: azure/load-testing@v1
+        with:
+          loadTestConfigFile: "load-tests/home-page2.yaml"
           loadTestResource: ${{ env.APPNAME }}-loadtest
           resourceGroup: ${{ env.APPNAME }}-loadtest-rg
           env: |

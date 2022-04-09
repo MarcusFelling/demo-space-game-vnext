@@ -293,6 +293,20 @@ jobs:
                 }
             ]
 
+      - name: "Azure Load Testing - Home Page Test 2"
+        uses: azure/load-testing@v1
+        with:
+          loadTestConfigFile: "load-tests/home-page.yaml"
+          loadTestResource: ${{ env.APPNAME }}-loadtest
+          resourceGroup: ${{ env.APPNAME }}-loadtest-rg
+          env: |
+            [
+                {
+                "name": "HOMEPAGE_URL",
+                "value": "spacegamevnext-test.azurewebsites.net"
+                }
+            ]
+
   deploy-prod:
     name: Deploy to Prod
     runs-on: ubuntu-20.04

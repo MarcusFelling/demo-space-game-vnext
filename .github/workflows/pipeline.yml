@@ -296,7 +296,7 @@ jobs:
       - name: "Azure Load Testing - Home Page Test 2"
         uses: azure/load-testing@v1
         with:
-          loadTestConfigFile: "load-tests/home-page.yaml"
+          loadTestConfigFile: "load-tests/home-page2.yaml"
           loadTestResource: ${{ env.APPNAME }}-loadtest
           resourceGroup: ${{ env.APPNAME }}-loadtest-rg
           env: |

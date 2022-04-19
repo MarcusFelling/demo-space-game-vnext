@@ -19,4 +19,5 @@ The main branch is set up with a [branch protection rule](https://docs.github.co
 1. If all tests are successful, the pipeline will deploy to production.
 1. After the PR is merged, a final [workflow](https://github.com/MarcusFelling/demo-space-game-vnext/blob/main/.github/workflows/cleanup.yml) will run to clean up the development environment.
 
-![pipeline](https://user-images.githubusercontent.com/6855361/111533722-1cbb8580-8735-11eb-95e7-df517da9a9cc.PNG)
+![image](https://user-images.githubusercontent.com/6855361/162650030-869aea0c-b666-4454-9c02-35e0f0221408.png)
+

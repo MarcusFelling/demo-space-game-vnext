@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "@playwright/test": "^1.20.2",
+    "@playwright/test": "^1.21.1",
     "gulp": "^4.0.2",
     "gulp-concat": "2.6.1",
     "gulp-cssmin": "0.2.0",

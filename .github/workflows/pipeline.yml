@@ -226,7 +226,7 @@ jobs:
   test-e2e:
     name: Run E2E Tests
     runs-on: ubuntu-20.04
-    container: mcr.microsoft.com/playwright:focal
+    container: mcr.microsoft.com/playwright:v1.21.0-focal
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net

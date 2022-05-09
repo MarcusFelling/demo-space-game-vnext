@@ -7,66 +7,6 @@ env:
 
 jobs:
 
-  deploy-test:
-    name: Deploy to Test
-    runs-on: ubuntu-20.04
-    environment:
-      name: test
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
-    env:
-      ENVIRONMENTNAME: test
-      DEVENV: false
-    needs: [deploy-dev]
-    steps:
-      - uses: actions/checkout@master
-
-      - name: Azure authentication
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Deploy infrastructure
-        run: >
-          az deployment sub create \
-            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
-            --location '${{ env.LOCATION }}' \
-            --template-file iac/main.bicep \
-            --parameters appName='${{ env.APPNAME }}' \
-                         environmentName=${{ env.ENVIRONMENTNAME }} \
-                         registryName='${{ env.REGISTRYNAME }}' \
-                         tag='${{ github.sha }}' \
-                         dbUserName='${{ secrets.DBUSERNAME }}' \
-                         dbPassword='${{ secrets.DBPASSWORD }}' \
-                         devEnv='${{ env.DEVENV }}'
-
-      - uses: actions/download-artifact@v2
-        name: Download dacpac from build
-        with:
-          name: dacpac
-
-      - name: Deploy Database using dacpac
-        uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
-        with:
-          args: /SourceFile:"database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
-
-      - name: Get ACR credentials
-        id: getACRCred
-        run: |
-          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
-          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
-          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
-
-      - name: "Deploy to Azure Web App for Containers slot"
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}"
-          slot-name: "swap"
-          images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
-
-      - name: Swap slots for no downtime deploy
-        run: |
-          az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'
-
   test-e2e:
     name: Run E2E Tests
     runs-on: ubuntu-20.04
@@ -77,7 +17,7 @@ jobs:
     env:
       ENVIRONMENTNAME: test-e2e
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
-    needs: [deploy-test]
+
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2

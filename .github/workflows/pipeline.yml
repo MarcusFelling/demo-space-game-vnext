@@ -53,6 +53,7 @@ jobs:
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test
+
     steps:
       - uses: actions/checkout@master
 
@@ -84,7 +85,7 @@ jobs:
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
-    needs: [deploy-test, test-load, test-e2e]
+
     steps:
       - uses: actions/checkout@master
 

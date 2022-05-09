@@ -6,5 +6,5 @@ test('Download game', async ({ page }) => {
   // Click text=Download game
   await page.locator('text=Download game').click();
   await expect(page).toHaveURL('https://apkcombo.com/fake-game-collection/com.mahesa.app.fakegamecollection/');
-  await expect(page).toHaveTitle('Download Fake Game Collection APK - Latest Version (Free)');
+  await expect(page).toHaveTitle('Fake Game Collection APK - Download (Android App)');
 });

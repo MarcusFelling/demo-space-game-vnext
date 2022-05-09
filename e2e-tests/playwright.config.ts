@@ -6,7 +6,6 @@ const config: PlaywrightTestConfig = {
   timeout: 30 * 1000,
 
   expect: {
-
     /**
      * Maximum time expect() should wait for the condition to be met.
      * For example in `await expect(locator).toHaveText();`
@@ -15,11 +14,13 @@ const config: PlaywrightTestConfig = {
   },
   // If a test fails, retry it additional 2 times
   retries: 2,
-  // Artifacts folder where screenshots, videos, and traces are stored.
-  outputDir: 'test-results/',
 
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['junit', { outputFile: './test-results/junit.xml' }],
+    ['html', { outputFolder: './test-results/html' }],
+    ['github', { outputDir: './test-results/github' }],
+  ],
   
   use: {
     // Run headless by default

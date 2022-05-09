@@ -36,7 +36,7 @@ jobs:
         uses: test-summary/action@dist
         if: always()
         with:
-          paths: e2e-tests/**/*.xml
+          paths: test-results/junit.xml
 
       - uses: actions/upload-artifact@v2
         name: Upload HTML report
@@ -45,93 +45,4 @@ jobs:
           name: e2e-tests-report
           path: e2e-tests/test-results/html
 
-  test-load:
-    name: Run Load Tests
-    runs-on: ubuntu-20.04
-    environment:
-      name: test-load
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
-    env:
-      ENVIRONMENTNAME: test
-
-    steps:
-      - uses: actions/checkout@master
-
-      - name: Azure authentication
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: "Azure Load Testing - Home Page Test"
-        uses: azure/load-testing@v1
-        with:
-          loadTestConfigFile: "load-tests/home-page.yaml"
-          loadTestResource: ${{ env.APPNAME }}-loadtest
-          resourceGroup: ${{ env.APPNAME }}-loadtest-rg
-          env: |
-            [
-                {
-                "name": "HOMEPAGE_URL",
-                "value": "spacegamevnext-test.azurewebsites.net"
-                }
-            ]
-
-  deploy-prod:
-    name: Deploy to Prod
-    runs-on: ubuntu-20.04
-    environment:
-      name: prod
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
-    env:
-      ENVIRONMENTNAME: prod
-      DEVENV: false
-
-    steps:
-      - uses: actions/checkout@master
-
-      - name: Azure authentication
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Deploy infrastructure
-        run: >
-          az deployment sub create \
-            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
-            --location '${{ env.LOCATION }}' \
-            --template-file iac/main.bicep \
-            --parameters appName='${{ env.APPNAME }}' \
-                         environmentName=${{ env.ENVIRONMENTNAME }} \
-                         registryName='${{ env.REGISTRYNAME }}' \
-                         tag='${{ github.sha }}' \
-                         dbUserName='${{ secrets.DBUSERNAME }}' \
-                         dbPassword='${{ secrets.DBPASSWORD }}' \
-                         devEnv='${{ env.DEVENV }}'
-
-      - uses: actions/download-artifact@v2
-        name: Download dacpac from build
-        with:
-          name: dacpac
-
-      - name: Deploy Database using dacpac
-        uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
-        with:
-          args: /SourceFile:"database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
-
-      - name: Get ACR credentials
-        id: getACRCred
-        run: |
-          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
-          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
-          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
-
-      - name: "Deploy to Azure Web App for Containers slot"
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}"
-          slot-name: "swap"
-          images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
-
-      - name: Swap slots for no downtime deploy
-        run: |
-          az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'
+ 

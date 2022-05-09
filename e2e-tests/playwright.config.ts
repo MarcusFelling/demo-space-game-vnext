@@ -19,7 +19,6 @@ const config: PlaywrightTestConfig = {
   reporter: [
     ['junit', { outputFile: './test-results/junit.xml' }],
     ['html', { outputFolder: './test-results/html' }],
-    ['github', { outputDir: './test-results/github' }],
   ],
   
   use: {

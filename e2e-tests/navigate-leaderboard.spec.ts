@@ -10,7 +10,7 @@ test('Navigate leadboard', async ({ page }) => {
   await page.locator('[data-target="#profile-modal-1"]').click();
 
   // Make sure profile is ranked #1
-  await page.locator("text='Rank #2'").click();
+  await page.locator("text='Rank #1'").click();
   
   // Make sure profile has at least 1 achievement
   const length = await page.$$eval('div.modal-body > div > div.col-sm-8 > div > ul', (items) => items.length);

@@ -231,7 +231,7 @@ jobs:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
-      ENVIRONMENTNAME: test
+      ENVIRONMENTNAME: test-e2e
       SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
     needs: [deploy-test]
     steps:
@@ -248,25 +248,24 @@ jobs:
         run: |
           HOME=/root npx playwright test --config e2e-tests/playwright.config.ts
 
+      - name: Create test summary
+        uses: test-summary/action@dist
+        if: always()
+        with:
+          paths: test-results/junit.xml
+
       - uses: actions/upload-artifact@v2
         name: Upload HTML report
         if: always()
         with:
-          name: playwright-test-report
-          path: playwright-report/index.html
-
-      - uses: actions/upload-artifact@v2
-        name: If failure, upload trace.zip to troubleshoot
-        if: failure()
-        with:
-          name: playwright-test-trace
-          path: test-results/
+          name: e2e-tests-report
+          path: e2e-tests/test-results/html
 
   test-load:
     name: Run Load Tests
     runs-on: ubuntu-20.04
     environment:
-      name: test
+      name: test-load
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test

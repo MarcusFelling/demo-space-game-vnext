@@ -1,10 +1,16 @@
-import { PlaywrightTestConfig, devices } from '@playwright/test';
+import type { PlaywrightTestConfig } from '@playwright/test';
+import { devices } from '@playwright/test';
+/**
+ * Read environment variables from file for local development.
+ * https://github.com/motdotla/dotenv
+ */
+require('dotenv').config();
 
 // Reference: https://playwright.dev/docs/test-configuration
 const config: PlaywrightTestConfig = {
+  testDir: 'tests',
   /* Maximum time one test can run for. */
-  timeout: 30 * 1000,
-
+  timeout: 60 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
@@ -14,24 +20,20 @@ const config: PlaywrightTestConfig = {
   },
   // If a test fails, retry it additional 2 times
   retries: 2,
-
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['junit', { outputFile: './test-results/junit.xml' }],
-    ['html', { outputFolder: './test-results/html' }],
+    ['list'],
+    ['junit', { outputFile: './results/junit.xml' }],
+    ['html', { outputFolder: './results/html' }],
   ],
-  
   use: {
     // Run headless by default
     headless: true,
-
     // Use env var to set baseURL
-    baseURL: process.env.SITE_URL,
-
+    baseURL: process.env.BASEURL,
     // Retry a test if its failing with enabled tracing. This allows you to analyse the DOM, console logs, network traffic etc.
     // More information: https://playwright.dev/docs/trace-viewer
     trace: 'on',
-
     // All available context options: https://playwright.dev/docs/api/class-browser#browser-new-context
     contextOptions: {
       ignoreHTTPSErrors: true,
@@ -39,7 +41,6 @@ const config: PlaywrightTestConfig = {
 
     acceptDownloads: true,
   },
-
   projects: [
     {
       name: 'Desktop Chrome',
@@ -52,17 +53,11 @@ const config: PlaywrightTestConfig = {
       use: {
         ...devices['Desktop Edge'],
       },
-    },    
+    },
     {
       name: 'Desktop Firefox',
       use: {
         ...devices['Desktop Firefox HiDPI'],
-      },
-    },
-    {
-      name: 'Desktop Safari',
-      use: {
-        ...devices['Desktop Safari'],
       },
     },
     // Test against mobile viewports.
@@ -71,7 +66,7 @@ const config: PlaywrightTestConfig = {
       use: {
         ...devices['Pixel 5'],
       },
-    },   
+    },
   ],
 };
 export default config;

@@ -8,12 +8,12 @@ env:
 jobs:
   build-app:
     name: Build - App
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@master
 
       - name: Azure authentication
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -76,12 +76,12 @@ jobs:
 
   build-iac:
     name: Build - Infrastructure
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@master
 
       - name: Azure authentication
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -112,12 +112,12 @@ jobs:
       ENVIRONMENTNAME: dev
       DEVENV: true
     needs: [build-app, build-database, build-iac]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@master
 
       - name: Azure authentication
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -165,7 +165,7 @@ jobs:
 
   deploy-test:
     name: Deploy to Test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
@@ -177,7 +177,7 @@ jobs:
       - uses: actions/checkout@master
 
       - name: Azure authentication
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -225,14 +225,17 @@ jobs:
 
   test-e2e:
     name: Run E2E Tests
-    runs-on: ubuntu-20.04
-    container: mcr.microsoft.com/playwright:v1.21.0-focal
+    runs-on: ubuntu-22.04
+    container: mcr.microsoft.com/playwright:v1.27.0-focal
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
     env:
       ENVIRONMENTNAME: test-e2e
-      SITE_URL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
+      BASEURL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
+    defaults:
+      run:
+        working-directory: e2e-tests      
     needs: [deploy-test]
     steps:
       - uses: actions/checkout@master
@@ -246,13 +249,13 @@ jobs:
       - name: Run Playwright Tests
         continue-on-error: false
         run: |
-          HOME=/root npx playwright test --config e2e-tests/playwright.config.ts
+          HOME=/root npx playwright test
 
       - name: Create test summary
         uses: test-summary/action@dist
         if: always()
         with:
-          paths: test-results/junit.xml
+          paths: e2e-tests/test-results/junit.xml
 
       - uses: actions/upload-artifact@v2
         name: Upload HTML report
@@ -263,7 +266,7 @@ jobs:
 
   test-load:
     name: Run Load Tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     environment:
       name: test-load
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
@@ -274,7 +277,7 @@ jobs:
       - uses: actions/checkout@master
 
       - name: Azure authentication
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -294,7 +297,7 @@ jobs:
 
   deploy-prod:
     name: Deploy to Prod
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     environment:
       name: prod
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
@@ -306,7 +309,7 @@ jobs:
       - uses: actions/checkout@master
 
       - name: Azure authentication
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 

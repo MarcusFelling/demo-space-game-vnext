@@ -4,7 +4,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto('');
 });
 
-test('Download game', async ({ page }) => {
+test.skip('Download game', async ({ page }) => {
   // Go to download page
   await page.getByRole('link', { name: 'Download game' }).click();
   // Click download button

@@ -22,6 +22,7 @@ const config: PlaywrightTestConfig = {
   retries: 2,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
+    ['list'],
     ['junit', { outputFile: './results/junit.xml' }],
     ['html', { outputFolder: './results/html' }],
   ],

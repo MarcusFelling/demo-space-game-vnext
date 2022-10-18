@@ -7,7 +7,6 @@ test.beforeEach(async ({ page }) => {
 test('Download game', async ({ page }) => {
   // Go to download page
   await page.getByRole('link', { name: 'Download game' }).click();
-  await expect(page).toHaveTitle('Fake Game Collection APK (Android App) - Free Download');
   // Click download button
   await page.getByRole('link', { name: 'Download APK (8 MB)' }).first().click();
   // Wrap download click in promise to wait for download

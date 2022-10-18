@@ -236,7 +236,7 @@ jobs:
     defaults:
       run:
         working-directory: e2e-tests      
-    needs: [deploy-test]
+    #needs: [deploy-test]
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v2

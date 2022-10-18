@@ -255,14 +255,14 @@ jobs:
         uses: test-summary/action@dist
         if: always()
         with:
-          paths: e2e-tests/test-results/junit.xml
+          paths: e2e-tests/results/junit.xml
 
       - uses: actions/upload-artifact@v2
         name: Upload HTML report
         if: always()
         with:
           name: e2e-tests-report
-          path: e2e-tests/test-results/html
+          path: e2e-tests/results/html
 
   test-load:
     name: Run Load Tests

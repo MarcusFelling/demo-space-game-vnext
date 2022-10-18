@@ -10,7 +10,7 @@ require('dotenv').config();
 const config: PlaywrightTestConfig = {
   testDir: 'tests',
   /* Maximum time one test can run for. */
-  timeout: 30 * 1000,
+  timeout: 60 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
@@ -22,8 +22,8 @@ const config: PlaywrightTestConfig = {
   retries: 2,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['junit', { outputFile: './test-results/junit.xml' }],
-    ['html', { outputFolder: './test-results/html' }],
+    ['junit', { outputFile: './results/junit.xml' }],
+    ['html', { outputFolder: './results/html' }],
   ],
   use: {
     // Run headless by default
@@ -57,12 +57,6 @@ const config: PlaywrightTestConfig = {
       name: 'Desktop Firefox',
       use: {
         ...devices['Desktop Firefox HiDPI'],
-      },
-    },
-    {
-      name: 'Desktop Safari',
-      use: {
-        ...devices['Desktop Safari'],
       },
     },
     // Test against mobile viewports.

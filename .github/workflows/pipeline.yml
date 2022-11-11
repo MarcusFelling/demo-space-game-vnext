@@ -140,6 +140,7 @@ jobs:
                          dbPassword='${{ secrets.DBPASSWORD }}' \
                          devEnv='${{ env.DEVENV }}'
 
+
       - uses: actions/download-artifact@v3.0.1
         name: download dacpac from build
         with:
@@ -194,6 +195,7 @@ jobs:
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
                          devEnv='${{ env.DEVENV }}'
+
 
       - uses: actions/download-artifact@v3.0.1
         name: Download dacpac from build
@@ -326,6 +328,7 @@ jobs:
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
                          devEnv='${{ env.DEVENV }}'
+
 
       - uses: actions/download-artifact@v3.0.1
         name: Download dacpac from build

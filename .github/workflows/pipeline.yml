@@ -32,24 +32,16 @@ jobs:
             --template-file iac/registry.bicep \
             --parameters registry='${{ env.REGISTRYNAME }}'
 
-      - name: Fetch ACR credentials
-        id: acrCredentials
-        continue-on-error: false
-        run: |
-          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username`"
-          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
-          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
-
       - name: ACR authentication
         uses: azure/docker-login@v1
         with:
           login-server: ${{ env.REGISTRYNAME }}.azurecr.io
-          username: ${{ steps.acrCredentials.outputs.acr_username }}
-          password: ${{ steps.acrCredentials.outputs.acr_password }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Docker Build & Push to ACR
         run: |
-          docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
+          docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ secrets.ACR_USERNAME }} --password ${{ secrets.ACR_PASSWORD }}
           docker build "$GITHUB_WORKSPACE" -f  "Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }} 
           docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
 
@@ -151,13 +143,6 @@ jobs:
         with:
           args: /SourceFile:"database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
 
-      - name: Get ACR credentials
-        id: getACRCred
-        run: |
-          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
-          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
-          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
-
       - name: "Deploy to Azure Web App for Containers"
         uses: azure/webapps-deploy@v2
         with:
@@ -206,13 +191,6 @@ jobs:
         uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
         with:
           args: /SourceFile:"database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
-
-      - name: Get ACR credentials
-        id: getACRCred
-        run: |
-          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
-          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
-          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
 
       - name: "Deploy to Azure Web App for Containers slot"
         uses: azure/webapps-deploy@v2
@@ -339,13 +317,6 @@ jobs:
         uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
         with:
           args: /SourceFile:"database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
-
-      - name: Get ACR credentials
-        id: getACRCred
-        run: |
-          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
-          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
-          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
 
       - name: "Deploy to Azure Web App for Containers slot"
         uses: azure/webapps-deploy@v2

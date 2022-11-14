@@ -14,7 +14,7 @@ on:
         type: string
       devenv: # used for conditionals like deploy slots that don't exist in dev
         required: true
-        type: boolean
+        type: string
       envurl:
         required: true
         type: string

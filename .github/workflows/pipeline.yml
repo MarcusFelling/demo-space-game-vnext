@@ -111,7 +111,7 @@ jobs:
     name: Deploy to Dev
     environment:
       name: dev
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.GITHUB_REF_NAME }}.azurewebsites.net
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ github.RUN_ID }}.azurewebsites.net
     concurrency:
       group: dev
       cancel-in-progress: true
@@ -163,7 +163,7 @@ jobs:
       - name: "Deploy to Azure Web App for Containers"
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.GITHUB_REF_NAME }}"
+          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ github.RUN_ID }}"
           images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
 
   deploy-test:

@@ -48,7 +48,7 @@ jobs:
             --template-file iac/main.bicep \
             --parameters appName='${{ env.APPNAME }}' \
                          environmentName=${{ inputs.environment }} \
-                         runID='-${{ github.RUN_ID }}' \
+                         branch='-${{ github.HEAD_REF }}' \
                          registryName='${{ env.REGISTRYNAME }}' \
                          tag='${{ github.sha }}' \
                          dbUserName='${{ secrets.DBUSERNAME }}' \

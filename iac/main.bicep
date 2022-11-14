@@ -11,8 +11,8 @@ param appName string
   'prod'
 ])
 param environmentName string
-@description('GitHub Actions run ID - passed in via pipeline for dev environment')
-param runID string = ''
+@description('Source branch passed in via pipeline for dev environment')
+param branch string = ''
 @description('Primary location for all resources')
 param location string = deployment().location
 @description('Name of shared registry')
@@ -77,7 +77,7 @@ module webapp 'webapp.bicep' = {
   params: {
     environmentName: environmentName
     appName: appName
-    runID: runID
+    branch: branch
     appSku: 'S2'
     registry: registry.outputs.acrName
     tag: tag

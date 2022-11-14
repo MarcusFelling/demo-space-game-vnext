@@ -84,7 +84,7 @@ jobs:
         if: ${{ inputs.devenv == 'true' }}
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "${{ env.APPNAME }}-${{ inputs.environment }}-${{ github.RUN_ID }}"
+          app-name: "${{ env.APPNAME }}-${{ inputs.environment }}-${{ github.HEAD_REF }}"
           images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
 
       - name: "Deploy to Azure Web App for Containers slot"

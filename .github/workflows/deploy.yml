@@ -34,23 +34,8 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy infrastructure
-        if: ${{ inputs.devenv }} == false
-        run: >
-          az deployment sub create \
-            --name 'spacegamedeploy-${{ inputs.environment }}' \
-            --location '${{ env.LOCATION }}' \
-            --template-file iac/main.bicep \
-            --parameters appName='${{ env.APPNAME }}' \
-                         environmentName=${{ inputs.environment }} \
-                         registryName='${{ env.REGISTRYNAME }}' \
-                         tag='${{ github.sha }}' \
-                         dbUserName='${{ secrets.DBUSERNAME }}' \
-                         dbPassword='${{ secrets.DBPASSWORD }}' \
-                         devEnv='${{ inputs.devenv }}'
-
-      - name: Deploy infrastructure
-        if: ${{ inputs.devenv }} == true
+      - name: Deploy infrastructure (dev)
+        if: ${{ inputs.devenv == 'true' }}
         run: >
           az deployment sub create \
             --name 'spacegamedeploy-${{ inputs.environment }}' \
@@ -59,6 +44,21 @@ jobs:
             --parameters appName='${{ env.APPNAME }}' \
                          environmentName=${{ inputs.environment }} \
                          runID='-${{ github.RUN_ID }}' \
+                         registryName='${{ env.REGISTRYNAME }}' \
+                         tag='${{ github.sha }}' \
+                         dbUserName='${{ secrets.DBUSERNAME }}' \
+                         dbPassword='${{ secrets.DBPASSWORD }}' \
+                         devEnv='${{ inputs.devenv }}'
+
+      - name: Deploy infrastructure
+        if: ${{ inputs.devenv == 'false' }}
+        run: >
+          az deployment sub create \
+            --name 'spacegamedeploy-${{ inputs.environment }}' \
+            --location '${{ env.LOCATION }}' \
+            --template-file iac/main.bicep \
+            --parameters appName='${{ env.APPNAME }}' \
+                         environmentName=${{ inputs.environment }} \
                          registryName='${{ env.REGISTRYNAME }}' \
                          tag='${{ github.sha }}' \
                          dbUserName='${{ secrets.DBUSERNAME }}' \
@@ -75,7 +75,15 @@ jobs:
         with:
           args: /SourceFile:"database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ inputs.environment }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
 
+      - name: "Deploy to Azure Web App for Containers (dev)"
+        if: ${{ inputs.devenv == 'true' }}
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ github.RUN_ID }}"
+          images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
+
       - name: "Deploy to Azure Web App for Containers slot"
+        if: ${{ inputs.devenv == 'false' }}
         uses: azure/webapps-deploy@v2
         with:
           app-name: "${{ env.APPNAME }}-${{ inputs.environment }}"
@@ -83,6 +91,6 @@ jobs:
           images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
 
       - name: Swap slots for no downtime deploy
-        if: ${{ inputs.devenv }} == false
+        if: ${{ inputs.devenv == 'false' }}        
         run: |
           az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ inputs.environment }}-rg' -n '${{ env.APPNAME }}-${{ inputs.environment }}' --slot 'swap' --target-slot 'production'

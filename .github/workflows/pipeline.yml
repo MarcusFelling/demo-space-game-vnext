@@ -130,7 +130,7 @@ jobs:
     container: mcr.microsoft.com/playwright:v1.27.0-focal
     environment:
       name: test
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+      url: https://spacegamevnext-test.azurewebsites.net
     concurrency:
       group: test
       cancel-in-progress: true
@@ -173,7 +173,7 @@ jobs:
     runs-on: ubuntu-22.04
     environment:
       name: test-load
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+      url: https://spacegamevnext-test.azurewebsites.net
     concurrency:
       group: test-load
       cancel-in-progress: true

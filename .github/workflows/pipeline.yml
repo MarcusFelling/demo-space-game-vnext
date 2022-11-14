@@ -9,7 +9,7 @@ env:
   APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
   REGISTRYNAME: "marcusfellingspacegamevnextacr" # Registry that is shared across environments
   LOCATION: "WestUS" # Region for all Azure resources
-  
+
 jobs:
   build-app:
     name: Build - App
@@ -102,6 +102,7 @@ jobs:
 
   deploy-dev:
     uses: ./.github/workflows/deploy.yml
+    secrets: inherit    
     with:
       environment: 'dev'
       devenv: true
@@ -113,6 +114,7 @@ jobs:
 
   deploy-test:
     uses: ./.github/workflows/deploy.yml
+    secrets: inherit        
     with:
       environment: 'test'
       devenv: false 
@@ -202,6 +204,7 @@ jobs:
 
   deploy-prod:
     uses: ./.github/workflows/deploy.yml
+    secrets: inherit        
     with:
       environment: 'prod'
       devenv: true 

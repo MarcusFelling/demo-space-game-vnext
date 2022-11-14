@@ -100,7 +100,7 @@ jobs:
                          devEnv='${{ env.DEVENV }}'
 
   deploy-dev:
-    uses: ./.github/workflows/deploy.yml@main
+    uses: ./.github/workflows/deploy.yml
     with:
       environment: 'dev'
       devenv: true 
@@ -114,7 +114,7 @@ jobs:
     needs: [build-app, build-database, build-iac]
 
   deploy-test:
-    uses: ./.github/workflows/deploy.yml@main
+    uses: ./.github/workflows/deploy.yml
     with:
       environment: 'test'
       devenv: false 
@@ -206,7 +206,7 @@ jobs:
             ]
 
   deploy-prod:
-    uses: ./.github/workflows/deploy.yml@main
+    uses: ./.github/workflows/deploy.yml
     with:
       environment: 'prod'
       devenv: true 

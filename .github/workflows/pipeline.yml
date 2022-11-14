@@ -112,9 +112,9 @@ jobs:
     environment:
       name: dev
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.GITHUB_REF_NAME }}.azurewebsites.net
-    concurrency: 
+    concurrency:
       group: dev
-      cancel-in-progress: true      
+      cancel-in-progress: true
     env:
       ENVIRONMENTNAME: dev
       DEVENV: true
@@ -142,7 +142,6 @@ jobs:
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
                          devEnv='${{ env.DEVENV }}'
-
 
       - uses: actions/download-artifact@v3.0.1
         name: download dacpac from build
@@ -173,9 +172,9 @@ jobs:
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
-    concurrency: 
+    concurrency:
       group: test
-      cancel-in-progress: true       
+      cancel-in-progress: true
     env:
       ENVIRONMENTNAME: test
       DEVENV: false
@@ -201,7 +200,6 @@ jobs:
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
                          devEnv='${{ env.DEVENV }}'
-
 
       - uses: actions/download-artifact@v3.0.1
         name: Download dacpac from build
@@ -238,15 +236,15 @@ jobs:
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
-    concurrency: 
+    concurrency:
       group: test
-      cancel-in-progress: true       
+      cancel-in-progress: true
     env:
       ENVIRONMENTNAME: test-e2e
       BASEURL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
     defaults:
       run:
-        working-directory: e2e-tests      
+        working-directory: e2e-tests
     needs: [deploy-test]
     steps:
       - uses: actions/checkout@v3.1.0
@@ -281,9 +279,9 @@ jobs:
     environment:
       name: test-load
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
-    concurrency: 
+    concurrency:
       group: test-load
-      cancel-in-progress: true       
+      cancel-in-progress: true
     env:
       ENVIRONMENTNAME: test
     needs: [deploy-test, test-e2e]
@@ -315,9 +313,9 @@ jobs:
     environment:
       name: prod
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
-    concurrency: 
+    concurrency:
       group: prod
-      cancel-in-progress: true       
+      cancel-in-progress: true
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
@@ -343,7 +341,6 @@ jobs:
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
                          devEnv='${{ env.DEVENV }}'
-
 
       - uses: actions/download-artifact@v3.0.1
         name: Download dacpac from build

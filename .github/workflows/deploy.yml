@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
-      
+
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJSON(github) }}
@@ -96,6 +96,6 @@ jobs:
           images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
 
       - name: Swap slots for no downtime deploy
-        if: ${{ inputs.devenv == 'false' }}        
+        if: ${{ inputs.devenv == 'false' }}
         run: |
           az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ inputs.environment }}-rg' -n '${{ env.APPNAME }}-${{ inputs.environment }}' --slot 'swap' --target-slot 'production'

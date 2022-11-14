@@ -10,8 +10,8 @@ param environmentName string
 param location string = resourceGroup().location
 @description('Application name - used as prefix for resource names')
 param appName string
-@description('Source branch of PR - passed in via pipeline for dev environment')
-param branchName string = ''
+@description('Source branch passed in via pipeline for dev environment')
+param branch string = ''
 @description('App Service Plan SKU')
 @allowed([
   'S1'
@@ -56,7 +56,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
 }
 
 resource appService 'Microsoft.Web/sites@2021-03-01' = {
-  name: '${appName}-${environmentName}${branchName}'
+  name: '${appName}-${environmentName}${branch}'
   location: location
   properties: {
     siteConfig: {

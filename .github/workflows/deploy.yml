@@ -1,0 +1,101 @@
+name: Resuable workflow for deployments
+
+# set env vars in template until this limitation is "fixed" https://docs.github.com/en/actions/using-workflows/reusing-workflows#limitations
+env:
+  APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
+  REGISTRYNAME: "marcusfellingspacegamevnextacr" # Registry that is shared across environments
+  LOCATION: "WestUS" # Region for all Azure resources
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      devenv: # used for conditionals like deploy slots that don't exist in dev
+        required: true
+        type: string
+      envurl:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ inputs.envurl }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.1.0
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
+      - name: Azure authentication
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy infrastructure (dev)
+        if: ${{ inputs.devenv == 'true' }}
+        run: >
+          az deployment sub create \
+            --name 'spacegamedeploy-${{ inputs.environment }}' \
+            --location '${{ env.LOCATION }}' \
+            --template-file iac/main.bicep \
+            --parameters appName='${{ env.APPNAME }}' \
+                         environmentName=${{ inputs.environment }} \
+                         branch='-${{ github.HEAD_REF }}' \
+                         registryName='${{ env.REGISTRYNAME }}' \
+                         tag='${{ github.sha }}' \
+                         dbUserName='${{ secrets.DBUSERNAME }}' \
+                         dbPassword='${{ secrets.DBPASSWORD }}' \
+                         devEnv='${{ inputs.devenv }}'
+
+      - name: Deploy infrastructure
+        if: ${{ inputs.devenv == 'false' }}
+        run: >
+          az deployment sub create \
+            --name 'spacegamedeploy-${{ inputs.environment }}' \
+            --location '${{ env.LOCATION }}' \
+            --template-file iac/main.bicep \
+            --parameters appName='${{ env.APPNAME }}' \
+                         environmentName=${{ inputs.environment }} \
+                         registryName='${{ env.REGISTRYNAME }}' \
+                         tag='${{ github.sha }}' \
+                         dbUserName='${{ secrets.DBUSERNAME }}' \
+                         dbPassword='${{ secrets.DBPASSWORD }}' \
+                         devEnv='${{ inputs.devenv }}'
+
+      - uses: actions/download-artifact@v3.0.1
+        name: Download dacpac from build
+        with:
+          name: dacpac
+
+      - name: Deploy Database using dacpac
+        uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
+        with:
+          args: /SourceFile:"database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ inputs.environment }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
+
+      - name: "Deploy to Azure Web App for Containers (dev)"
+        if: ${{ inputs.devenv == 'true' }}
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "${{ env.APPNAME }}-${{ inputs.environment }}-${{ github.HEAD_REF }}"
+          images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
+
+      - name: "Deploy to Azure Web App for Containers slot"
+        if: ${{ inputs.devenv == 'false' }}
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "${{ env.APPNAME }}-${{ inputs.environment }}"
+          slot-name: "swap"
+          images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
+
+      - name: Swap slots for no downtime deploy
+        if: ${{ inputs.devenv == 'false' }}
+        run: |
+          az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ inputs.environment }}-rg' -n '${{ env.APPNAME }}-${{ inputs.environment }}' --slot 'swap' --target-slot 'production'

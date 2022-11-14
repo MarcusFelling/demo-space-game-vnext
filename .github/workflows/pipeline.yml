@@ -4,6 +4,7 @@ on:
     branches:
       - main
   workflow_dispatch:
+
 env:
   APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
   REGISTRYNAME: "marcusfellingspacegamevnextacr" # Registry that is shared across environments
@@ -100,112 +101,28 @@ jobs:
                          devEnv='${{ env.DEVENV }}'
 
   deploy-dev:
-    name: Deploy to Dev
-    environment:
-      name: dev
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ github.RUN_ID }}.azurewebsites.net
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit    
+    with:
+      environment: 'dev'
+      devenv: true
+      envurl: https://spacegamevnext-dev-${{ github.HEAD_REF }}.azurewebsites.net
     concurrency:
       group: dev
       cancel-in-progress: true
-    env:
-      ENVIRONMENTNAME: dev
-      DEVENV: true
     needs: [build-app, build-database, build-iac]
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3.1.0
-
-      - name: Azure authentication
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Deploy infrastructure
-        run: >
-          az deployment sub create \
-            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
-            --location '${{ env.LOCATION }}' \
-            --template-file iac/main.bicep \
-            --parameters appName='${{ env.APPNAME }}' \
-                         environmentName=${{ env.ENVIRONMENTNAME }} \
-                         branchName='-${{ github.RUN_ID }}' \
-                         registryName='${{ env.REGISTRYNAME }}' \
-                         tag='${{ github.sha }}' \
-                         dbUserName='${{ secrets.DBUSERNAME }}' \
-                         dbPassword='${{ secrets.DBPASSWORD }}' \
-                         devEnv='${{ env.DEVENV }}'
-
-      - uses: actions/download-artifact@v3.0.1
-        name: download dacpac from build
-        with:
-          name: dacpac
-
-      - name: Deploy Database using dacpac
-        uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
-        with:
-          args: /SourceFile:"database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
-
-      - name: "Deploy to Azure Web App for Containers"
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ github.RUN_ID }}"
-          images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
 
   deploy-test:
-    name: Deploy to Test
-    runs-on: ubuntu-22.04
-    environment:
-      name: test
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit        
+    with:
+      environment: 'test'
+      devenv: false 
+      envurl: https://spacegamevnext-test.azurewebsites.net
     concurrency:
       group: test
       cancel-in-progress: true
-    env:
-      ENVIRONMENTNAME: test
-      DEVENV: false
     needs: [deploy-dev]
-    steps:
-      - uses: actions/checkout@v3.1.0
-
-      - name: Azure authentication
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Deploy infrastructure
-        run: >
-          az deployment sub create \
-            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
-            --location '${{ env.LOCATION }}' \
-            --template-file iac/main.bicep \
-            --parameters appName='${{ env.APPNAME }}' \
-                         environmentName=${{ env.ENVIRONMENTNAME }} \
-                         registryName='${{ env.REGISTRYNAME }}' \
-                         tag='${{ github.sha }}' \
-                         dbUserName='${{ secrets.DBUSERNAME }}' \
-                         dbPassword='${{ secrets.DBPASSWORD }}' \
-                         devEnv='${{ env.DEVENV }}'
-
-      - uses: actions/download-artifact@v3.0.1
-        name: Download dacpac from build
-        with:
-          name: dacpac
-
-      - name: Deploy Database using dacpac
-        uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
-        with:
-          args: /SourceFile:"database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
-
-      - name: "Deploy to Azure Web App for Containers slot"
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}"
-          slot-name: "swap"
-          images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
-
-      - name: Swap slots for no downtime deploy
-        run: |
-          az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'
 
   test-e2e:
     name: Run E2E Tests
@@ -213,7 +130,7 @@ jobs:
     container: mcr.microsoft.com/playwright:v1.27.0-focal
     environment:
       name: test
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+      url: https://spacegamevnext-test.azurewebsites.net
     concurrency:
       group: test
       cancel-in-progress: true
@@ -256,7 +173,7 @@ jobs:
     runs-on: ubuntu-22.04
     environment:
       name: test-load
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+      url: https://spacegamevnext-test.azurewebsites.net
     concurrency:
       group: test-load
       cancel-in-progress: true
@@ -286,57 +203,13 @@ jobs:
             ]
 
   deploy-prod:
-    name: Deploy to Prod
-    runs-on: ubuntu-22.04
-    environment:
-      name: prod
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit        
+    with:
+      environment: 'prod'
+      devenv: true 
+      envurl: https://spacegamevnext-prod.azurewebsites.net
     concurrency:
       group: prod
       cancel-in-progress: true
-    env:
-      ENVIRONMENTNAME: prod
-      DEVENV: false
     needs: [deploy-test, test-load, test-e2e]
-    steps:
-      - uses: actions/checkout@v3.1.0
-
-      - name: Azure authentication
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Deploy infrastructure
-        run: >
-          az deployment sub create \
-            --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
-            --location '${{ env.LOCATION }}' \
-            --template-file iac/main.bicep \
-            --parameters appName='${{ env.APPNAME }}' \
-                         environmentName=${{ env.ENVIRONMENTNAME }} \
-                         registryName='${{ env.REGISTRYNAME }}' \
-                         tag='${{ github.sha }}' \
-                         dbUserName='${{ secrets.DBUSERNAME }}' \
-                         dbPassword='${{ secrets.DBPASSWORD }}' \
-                         devEnv='${{ env.DEVENV }}'
-
-      - uses: actions/download-artifact@v3.0.1
-        name: Download dacpac from build
-        with:
-          name: dacpac
-
-      - name: Deploy Database using dacpac
-        uses: docker://markhobson/sqlpackage:latest # Use container with sqlpackage.exe
-        with:
-          args: /SourceFile:"database.dacpac" /Action:Publish /TargetServerName:"${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-sql.database.windows.net" /TargetDatabaseName:"${{ env.APPNAME }}database" /TargetUser:"${{ secrets.DBUSERNAME }}" /TargetPassword:"${{ secrets.DBPASSWORD }}"
-
-      - name: "Deploy to Azure Web App for Containers slot"
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}"
-          slot-name: "swap"
-          images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
-
-      - name: Swap slots for no downtime deploy
-        run: |
-          az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-rg' -n '${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}' --slot 'swap' --target-slot 'production'

@@ -1,5 +1,9 @@
 name: pipeline
-on: [workflow_dispatch, push]
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 env:
   APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
   REGISTRYNAME: "marcusfellingspacegamevnextacr" # Registry that is shared across environments
@@ -99,7 +103,10 @@ jobs:
     name: Deploy to Dev
     environment:
       name: dev
-      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.BRANCH_NAME }}.azurewebsites.net
+      url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ github.RUN_ID }}.azurewebsites.net
+    concurrency:
+      group: dev
+      cancel-in-progress: true
     env:
       ENVIRONMENTNAME: dev
       DEVENV: true
@@ -113,10 +120,6 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Extract branch name to append to app name
-        run: |
-          echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV
-
       - name: Deploy infrastructure
         run: >
           az deployment sub create \
@@ -125,13 +128,12 @@ jobs:
             --template-file iac/main.bicep \
             --parameters appName='${{ env.APPNAME }}' \
                          environmentName=${{ env.ENVIRONMENTNAME }} \
-                         branchName='-${{ env.BRANCH_NAME }}' \
+                         branchName='-${{ github.RUN_ID }}' \
                          registryName='${{ env.REGISTRYNAME }}' \
                          tag='${{ github.sha }}' \
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
                          devEnv='${{ env.DEVENV }}'
-
 
       - uses: actions/download-artifact@v3.0.1
         name: download dacpac from build
@@ -146,7 +148,7 @@ jobs:
       - name: "Deploy to Azure Web App for Containers"
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ env.BRANCH_NAME }}"
+          app-name: "${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}-${{ github.RUN_ID }}"
           images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.sha }}
 
   deploy-test:
@@ -155,6 +157,9 @@ jobs:
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+    concurrency:
+      group: test
+      cancel-in-progress: true
     env:
       ENVIRONMENTNAME: test
       DEVENV: false
@@ -180,7 +185,6 @@ jobs:
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
                          devEnv='${{ env.DEVENV }}'
-
 
       - uses: actions/download-artifact@v3.0.1
         name: Download dacpac from build
@@ -210,12 +214,15 @@ jobs:
     environment:
       name: test
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+    concurrency:
+      group: test
+      cancel-in-progress: true
     env:
       ENVIRONMENTNAME: test-e2e
       BASEURL: https://spacegamevnext-test.azurewebsites.net # Playwright tests use this env var
     defaults:
       run:
-        working-directory: e2e-tests      
+        working-directory: e2e-tests
     needs: [deploy-test]
     steps:
       - uses: actions/checkout@v3.1.0
@@ -250,6 +257,9 @@ jobs:
     environment:
       name: test-load
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+    concurrency:
+      group: test-load
+      cancel-in-progress: true
     env:
       ENVIRONMENTNAME: test
     needs: [deploy-test, test-e2e]
@@ -281,6 +291,9 @@ jobs:
     environment:
       name: prod
       url: https://${{ env.APPNAME }}-${{ env.ENVIRONMENTNAME }}.azurewebsites.net
+    concurrency:
+      group: prod
+      cancel-in-progress: true
     env:
       ENVIRONMENTNAME: prod
       DEVENV: false
@@ -306,7 +319,6 @@ jobs:
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
                          devEnv='${{ env.DEVENV }}'
-
 
       - uses: actions/download-artifact@v3.0.1
         name: Download dacpac from build

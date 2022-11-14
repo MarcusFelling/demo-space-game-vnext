@@ -56,7 +56,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
 }
 
 resource appService 'Microsoft.Web/sites@2021-03-01' = {
-  name: '${appName}-${environmentName}${runID}'
+  name: '${appName}-${environmentName}-${runID}'
   location: location
   properties: {
     siteConfig: {

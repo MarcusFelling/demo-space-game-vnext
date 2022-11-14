@@ -5,6 +5,11 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
+  REGISTRYNAME: "marcusfellingspacegamevnextacr" # Registry that is shared across environments
+  LOCATION: "WestUS" # Region for all Azure resources
+  
 jobs:
   build-app:
     name: Build - App
@@ -85,11 +90,11 @@ jobs:
         run: |
           az deployment sub validate \
             --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
-            --location 'WestUS' \
+            --location '${{ env.LOCATION }}' \
             --template-file main.bicep \
-            --parameters appName='spacegamevnext' \
+            --parameters appName='${{ env.APPNAME }}' \
                          environmentName=${{ env.ENVIRONMENTNAME }} \
-                         registryName='marcusfellingspacegamevnextacr' \
+                         registryName='${{ env.REGISTRYNAME }}' \
                          tag='${{ github.sha }}' \
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
@@ -98,7 +103,7 @@ jobs:
   deploy-dev:
     uses: ./.github/workflows/deploy.yml
     with:
-      environment: "dev"
+      environment: 'dev'
       devenv: true
       envurl: https://spacegamevnext-dev-${{ github.RUN_ID }}.azurewebsites.net
     concurrency:
@@ -109,8 +114,8 @@ jobs:
   deploy-test:
     uses: ./.github/workflows/deploy.yml
     with:
-      environment: "test"
-      devenv: false
+      environment: 'test'
+      devenv: false 
       envurl: https://spacegamevnext-test.azurewebsites.net
     concurrency:
       group: test
@@ -198,8 +203,8 @@ jobs:
   deploy-prod:
     uses: ./.github/workflows/deploy.yml
     with:
-      environment: "prod"
-      devenv: true
+      environment: 'prod'
+      devenv: true 
       envurl: https://spacegamevnext-prod.azurewebsites.net
     concurrency:
       group: prod

@@ -85,11 +85,11 @@ jobs:
         run: |
           az deployment sub validate \
             --name 'spacegamedeploy-${{ env.ENVIRONMENTNAME }}' \
-            --location '${{ env.LOCATION }}' \
+            --location 'WestUS' \
             --template-file main.bicep \
-            --parameters appName='${{ env.APPNAME }}' \
+            --parameters appName='spacegamevnext' \
                          environmentName=${{ env.ENVIRONMENTNAME }} \
-                         registryName='${{ env.REGISTRYNAME }}' \
+                         registryName='marcusfellingspacegamevnextacr' \
                          tag='${{ github.sha }}' \
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \

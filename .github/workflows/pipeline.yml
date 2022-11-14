@@ -136,7 +136,7 @@ jobs:
             --template-file iac/main.bicep \
             --parameters appName='${{ env.APPNAME }}' \
                          environmentName=${{ env.ENVIRONMENTNAME }} \
-                         branchName='-${{ github.REF_NAME }}' \
+                         branchName='-${{ github.RUN_ID }}' \
                          registryName='${{ env.REGISTRYNAME }}' \
                          tag='${{ github.sha }}' \
                          dbUserName='${{ secrets.DBUSERNAME }}' \

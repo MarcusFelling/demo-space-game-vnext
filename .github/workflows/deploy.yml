@@ -1,5 +1,11 @@
 name: Resuable workflow for deployments
 
+# set env vars in template until this limitation is "fixed" https://docs.github.com/en/actions/using-workflows/reusing-workflows#limitations
+env:
+  APPNAME: spacegamevnext # Name of app. Used for prefix in resource group, service plan, app service, container images, sql server and database.
+  REGISTRYNAME: "marcusfellingspacegamevnextacr" # Registry that is shared across environments
+  LOCATION: "WestUS" # Region for all Azure resources
+
 on:
   workflow_call:
     inputs:
@@ -9,15 +15,6 @@ on:
       devenv: # used for conditionals like deploy slots that don't exist in dev
         required: true
         type: boolean
-      appname:
-        required: true
-        type: string
-      registryname:
-        required: true
-        type: string
-      location:
-        required: true
-        type: string 
       envurl:
         required: true
         type: string
@@ -27,7 +24,7 @@ jobs:
     name: Deploy to ${{ inputs.environment }}
     environment:
       name: ${{ inputs.environment }}
-      url: ${{ inputs.envurl }}   
+      url: ${{ inputs.envurl }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.1.0
@@ -66,7 +63,7 @@ jobs:
                          tag='${{ github.sha }}' \
                          dbUserName='${{ secrets.DBUSERNAME }}' \
                          dbPassword='${{ secrets.DBPASSWORD }}' \
-                         devEnv='${{ inputs.devenv }}'                         
+                         devEnv='${{ inputs.devenv }}'
 
       - uses: actions/download-artifact@v3.0.1
         name: Download dacpac from build
@@ -89,5 +86,3 @@ jobs:
         if: ${{ inputs.devenv }} == false
         run: |
           az webapp deployment slot swap -g '${{ env.APPNAME }}-${{ inputs.environment }}-rg' -n '${{ env.APPNAME }}-${{ inputs.environment }}' --slot 'swap' --target-slot 'production'
-
-

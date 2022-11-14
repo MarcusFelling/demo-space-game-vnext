@@ -106,7 +106,7 @@ jobs:
     with:
       environment: 'dev'
       devenv: true
-      envurl: https://spacegamevnext-dev-${{ github.RUN_ID }}.azurewebsites.net
+      envurl: https://spacegamevnext-dev-${{ github.HEAD_REF }}.azurewebsites.net
     concurrency:
       group: dev
       cancel-in-progress: true

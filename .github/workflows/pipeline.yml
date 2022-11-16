@@ -211,7 +211,7 @@ jobs:
     secrets: inherit        
     with:
       environment: 'prod'
-      devenv: true 
+      devenv: false 
       envurl: https://spacegamevnext-prod.azurewebsites.net
     concurrency:
       group: prod

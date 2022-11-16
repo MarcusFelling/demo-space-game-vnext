@@ -55,7 +55,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
   scope: resourceGroup('${appName}-ACR-rg')
 }
 
-resource appService 'Microsoft.Web/sites@2021-03-01' = {
+resource appService 'Microsoft.Web/sites@2022-03-01' = {
   name: '${appName}-${environmentName}${branch}'
   location: location
   properties: {
@@ -83,7 +83,7 @@ resource appService 'Microsoft.Web/sites@2021-03-01' = {
     serverFarmId: servicePlan.id
   }
 
-  resource connectionString 'config@2021-03-01' = {
+  resource connectionString 'config@2022-03-01' = {
     name: 'connectionstrings'
     properties: {
       DefaultConnection: {
@@ -94,7 +94,7 @@ resource appService 'Microsoft.Web/sites@2021-03-01' = {
   }
 
   // Create deployment slot if it's not a dev environment
-  resource deploySlot 'slots@2021-03-01' = if (!devEnv) {
+  resource deploySlot 'slots@2022-03-01' = if (!devEnv) {
     name: 'swap'
     location: location
     kind: 'linux'

@@ -22,6 +22,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+
       - name: Build app and run unit tests
         run: |
           dotnet restore web-app/web-app.csproj
@@ -207,7 +211,7 @@ jobs:
     secrets: inherit        
     with:
       environment: 'prod'
-      devenv: true 
+      devenv: false 
       envurl: https://spacegamevnext-prod.azurewebsites.net
     concurrency:
       group: prod

@@ -4,7 +4,7 @@
 
 The next iteration of [demo-space-game](https://github.com/MarcusFelling/Demo.SpaceGame), now using containers and GitHub Actions 🚀!
 
-The Space Game website is a .NET 5 web app that's deployed to ☁️ Azure Web App for Containers and Azure SQL ☁️. The infrastructure is deployed using [Azure Bicep](https://github.com/Azure/bicep) 💪, and the application is tested using [Playwright](https://playwright.dev/) for browser tests and [Azure Load Testing](https://azure.microsoft.com/services/load-testing/) for load tests.
+The Space Game website is a .NET 7 web app that's deployed to ☁️ Azure Web App for Containers and Azure SQL ☁️. The infrastructure is deployed using [Azure Bicep](https://github.com/Azure/bicep) 💪, and the application is tested using [Playwright](https://playwright.dev/) for browser tests and [Azure Load Testing](https://azure.microsoft.com/services/load-testing/) for load tests.
 
 ## CI/CD Workflow
 

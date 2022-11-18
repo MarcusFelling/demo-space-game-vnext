@@ -105,7 +105,7 @@ jobs:
                          devEnv='${{ env.DEVENV }}'
 
   deploy-dev:
-    uses: ./.github/workflows/deploy.yml
+    uses: ./.github/workflows/space-game-deploy.yml
     secrets: inherit    
     with:
       environment: 'dev'
@@ -117,7 +117,7 @@ jobs:
     needs: [build-app, build-database, build-iac]
 
   deploy-test:
-    uses: ./.github/workflows/deploy.yml
+    uses: ./.github/workflows/space-game-deploy.yml
     secrets: inherit        
     with:
       environment: 'test'
@@ -207,7 +207,7 @@ jobs:
             ]
 
   deploy-prod:
-    uses: ./.github/workflows/deploy.yml
+    uses: ./.github/workflows/space-game-deploy.yml
     secrets: inherit        
     with:
       environment: 'prod'
